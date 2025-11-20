@@ -12,6 +12,8 @@ import { getDeal } from '@/lib/database';
 import { analyzeDeal } from '@/lib/deal-analyzer';
 import { toast } from 'sonner';
 import type { Deal, DealAnalysis, PropertyInputs } from '@/types';
+import { CashFlowProjectionChart } from '@/components/charts/cash-flow-projection-chart';
+import { DealMetricsChart } from '@/components/charts/deal-metrics-chart';
 
 export default function DealDetailPage() {
   const router = useRouter();
@@ -450,6 +452,50 @@ export default function DealDetailPage() {
             </CardContent>
           </Card>
         )}
+
+        {/* Cash Flow Projection Chart */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>10-Year Cash Flow Projection</CardTitle>
+            <CardDescription>
+              Projected cash flow, equity growth, and property value over time
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <CashFlowProjectionChart
+              analysis={analysis}
+              years={10}
+              appreciationRate={3.0}
+              rentGrowthRate={2.5}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Deal Metrics Visualization */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Deal Metrics Comparison</CardTitle>
+            <CardDescription>
+              Your deal metrics vs market benchmarks and targets
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <DealMetricsChart analysis={analysis} type="bar" />
+          </CardContent>
+        </Card>
+
+        {/* Radar Chart Alternative */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Deal Performance Radar</CardTitle>
+            <CardDescription>
+              Visual comparison of key performance indicators
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <DealMetricsChart analysis={analysis} type="radar" />
+          </CardContent>
+        </Card>
 
         {/* Action Buttons */}
         <div className="flex gap-4">
