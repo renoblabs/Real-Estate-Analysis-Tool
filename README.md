@@ -24,9 +24,27 @@ REI OPS™ is a comprehensive real estate investment analysis tool designed spec
 - **Deal Scoring**: AI-powered grading system (A-F) with detailed reasoning
 - **Market Comparison**: Compare deals against regional benchmarks
 
+### 📈 **NEW** Data Visualizations
+- **Cash Flow Projections**: 10-year forecast with equity growth and property value
+- **Deal Metrics Charts**: Bar and radar charts comparing your deal to market benchmarks
+- **Interactive Tooltips**: Detailed breakdowns on hover
+- **Customizable Assumptions**: Adjust appreciation and rent growth rates
+
+### 🔄 **NEW** Deal Comparison Tool
+- **Side-by-Side Comparison**: Compare up to 3 deals simultaneously
+- **Visual Indicators**: Color-coded arrows showing performance differences
+- **Comprehensive Metrics**: Property info, financials, scores, and grades
+- **Mobile Responsive**: Works seamlessly on all devices
+
+### 💼 **NEW** Portfolio Analytics
+- **Aggregate Metrics**: Total portfolio value, cash flow, and returns
+- **Visual Distribution**: Pie and bar charts for property types and grades
+- **Top Performers**: Ranked list of your best deals
+- **Needs Attention**: Identify underperforming properties
+
 ### 💼 Portfolio Management
 - **All Deals List**: View, filter, and sort all your deals
-- **Deal Details**: Complete analysis view for any saved deal
+- **Deal Details**: Complete analysis view with charts and visualizations
 - **Edit Deals**: Update and re-analyze existing deals
 - **Delete Deals**: Remove deals with confirmation
 - **Export PDF**: Professional deal reports
@@ -38,6 +56,7 @@ REI OPS™ is a comprehensive real estate investment analysis tool designed spec
 - **Loading States**: Professional skeleton loaders
 - **Error Boundaries**: Graceful error handling
 - **Analytics Tracking**: Built-in event tracking
+- **Comprehensive Testing**: 75+ unit tests with 70% coverage threshold
 
 ---
 
@@ -81,22 +100,28 @@ See [SETUP.md](SETUP.md) for detailed instructions.
 
 ## 📚 Documentation
 
+- **[USER_GUIDE.md](USER_GUIDE.md)** - **NEW** Complete user manual (300+ lines)
+- **[SESSION_2_FEATURES.md](SESSION_2_FEATURES.md)** - **NEW** Advanced features summary
 - **[SETUP.md](SETUP.md)** - Complete deployment instructions
 - **[FEATURES.md](FEATURES.md)** - Comprehensive feature list (15+ major features)
 - **[DEPLOYMENT_SUMMARY.md](DEPLOYMENT_SUMMARY.md)** - Initial MVP summary
+- **[DEPLOY_COOLIFY.md](DEPLOY_COOLIFY.md)** - Self-hosted deployment guide
 
 ---
 
 ## 🛠 Tech Stack
 
-- **Framework**: Next.js 14+ with App Router
-- **Language**: TypeScript
-- **Database**: Supabase (PostgreSQL + Auth)
-- **Styling**: Tailwind CSS + Custom Components
+- **Framework**: Next.js 16+ with App Router & Turbopack
+- **Language**: TypeScript (strict mode, 100% coverage)
+- **Database**: Supabase (PostgreSQL + Auth + RLS)
+- **Styling**: Tailwind CSS 4 + Custom Components
 - **Forms**: React Hook Form + Zod validation
-- **State**: React Hooks
+- **State**: React Hooks + Zustand
+- **Visualizations**: **NEW** Recharts (bar, line, pie, radar charts)
 - **PDF**: jsPDF
-- **Deployment**: Vercel-ready
+- **Testing**: **NEW** Jest + React Testing Library + ts-jest
+- **Code Quality**: ESLint + Prettier
+- **Deployment**: Vercel / Coolify / Docker
 
 ---
 
@@ -108,10 +133,15 @@ See [SETUP.md](SETUP.md) for detailed instructions.
   /dashboard                 # Main dashboard
   /analyze                   # Deal analysis form
   /deals                     # All deals list
-  /deals/[id]                # Deal detail view
+  /deals/[id]                # Deal detail view (with charts!)
+  /compare                   # NEW: Compare up to 3 deals
+  /portfolio                 # NEW: Portfolio analytics
   /settings                  # User settings
 /components                   # Reusable components
   /ui                        # UI primitives
+  /charts                    # NEW: Recharts visualizations
+    cash-flow-projection-chart.tsx
+    deal-metrics-chart.tsx
   error-boundary.tsx         # Error handling
   loading-skeletons.tsx      # Loading states
 /lib                         # Core business logic
@@ -121,9 +151,15 @@ See [SETUP.md](SETUP.md) for detailed instructions.
   database.ts               # Supabase operations
   pdf-export.ts             # PDF generation
   analytics.ts              # Event tracking
+/__tests__                   # NEW: Test suites
+  /lib
+    canadian-calculations.test.ts
+    deal-scoring.test.ts
 /types                       # TypeScript definitions
 /constants                   # Market data & benchmarks
 /supabase                    # Database schema
+/jest.config.ts              # NEW: Jest configuration
+/jest.setup.ts               # NEW: Test environment
 ```
 
 ---
@@ -159,6 +195,15 @@ npm run build
 
 # Run production server
 npm run start
+
+# Run tests (NEW)
+npm test
+
+# Run tests in watch mode (NEW)
+npm run test:watch
+
+# Generate test coverage report (NEW)
+npm run test:coverage
 
 # Lint code
 npm run lint
@@ -241,4 +286,4 @@ Copyright © 2024 REI OPS™. All rights reserved.
 
 **Built with ❤️ for Canadian real estate investors**
 
-🚀 **Status**: Production Ready | v2.0.0
+🚀 **Status**: Production Ready | v2.1.0 - **Now with Advanced Visualizations & Portfolio Analytics!**

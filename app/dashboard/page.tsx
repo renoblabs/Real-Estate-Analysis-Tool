@@ -78,12 +78,21 @@ export default function DashboardPage() {
             <span className="text-xl font-bold">REI OPS™</span>
             <Badge variant="outline">🇨🇦</Badge>
           </Link>
-          <nav className="flex items-center gap-4">
+          <nav className="flex items-center gap-2">
             <Link href="/dashboard">
               <Button variant="ghost" size="sm">Dashboard</Button>
             </Link>
+            <Link href="/deals">
+              <Button variant="ghost" size="sm">Deals</Button>
+            </Link>
+            <Link href="/compare">
+              <Button variant="ghost" size="sm">Compare</Button>
+            </Link>
+            <Link href="/portfolio">
+              <Button variant="ghost" size="sm">Portfolio</Button>
+            </Link>
             <Link href="/analyze">
-              <Button size="sm">+ New Analysis</Button>
+              <Button size="sm">+ New</Button>
             </Link>
             <Button variant="ghost" size="sm" onClick={handleSignOut}>
               Sign Out
@@ -144,9 +153,9 @@ export default function DashboardPage() {
         {/* Quick Actions */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold mb-4">Quick Actions</h2>
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             <Link href="/analyze">
-              <Card className="cursor-pointer hover:border-primary transition-colors">
+              <Card className="cursor-pointer hover:border-primary transition-colors h-full">
                 <CardHeader>
                   <CardTitle>Analyze New Deal</CardTitle>
                   <CardDescription>
@@ -156,7 +165,7 @@ export default function DashboardPage() {
               </Card>
             </Link>
             <Link href="/deals">
-              <Card className="cursor-pointer hover:border-primary transition-colors">
+              <Card className="cursor-pointer hover:border-primary transition-colors h-full">
                 <CardHeader>
                   <CardTitle>View All Deals</CardTitle>
                   <CardDescription>
@@ -165,8 +174,28 @@ export default function DashboardPage() {
                 </CardHeader>
               </Card>
             </Link>
+            <Link href="/compare">
+              <Card className="cursor-pointer hover:border-primary transition-colors h-full">
+                <CardHeader>
+                  <CardTitle>Compare Deals</CardTitle>
+                  <CardDescription>
+                    Side-by-side comparison of up to 3 deals
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
+            <Link href="/portfolio">
+              <Card className="cursor-pointer hover:border-primary transition-colors h-full">
+                <CardHeader>
+                  <CardTitle>Portfolio Analytics</CardTitle>
+                  <CardDescription>
+                    Aggregate insights across all deals
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
             <Link href="/settings">
-              <Card className="cursor-pointer hover:border-primary transition-colors">
+              <Card className="cursor-pointer hover:border-primary transition-colors h-full">
                 <CardHeader>
                   <CardTitle>Settings</CardTitle>
                   <CardDescription>
