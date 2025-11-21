@@ -42,6 +42,13 @@ REI OPS™ is a comprehensive real estate investment analysis tool designed spec
 - **Top Performers**: Ranked list of your best deals
 - **Needs Attention**: Identify underperforming properties
 
+### 🎯 **NEW** Advanced Analysis Tools
+- **Sensitivity Analysis**: Interactive what-if scenarios for rent, vacancy, rates, price, expenses
+- **IRR & NPV Calculator**: Institutional-grade financial metrics with multi-year projections
+- **Payback Period**: Calculate how quickly you'll recover your investment
+- **Canadian Tax Impact**: Federal + provincial tax calculator with deductions and capital gains
+- **Airbnb/STR Analysis**: Short-term rental modeling vs long-term comparison
+
 ### 💼 Portfolio Management
 - **All Deals List**: View, filter, and sort all your deals
 - **Deal Details**: Complete analysis view with charts and visualizations
@@ -100,10 +107,11 @@ See [SETUP.md](SETUP.md) for detailed instructions.
 
 ## 📚 Documentation
 
-- **[USER_GUIDE.md](USER_GUIDE.md)** - **NEW** Complete user manual (300+ lines)
-- **[SESSION_2_FEATURES.md](SESSION_2_FEATURES.md)** - **NEW** Advanced features summary
+- **[USER_GUIDE.md](USER_GUIDE.md)** - Complete user manual (300+ lines)
+- **[ADVANCED_ANALYSIS_FEATURES.md](ADVANCED_ANALYSIS_FEATURES.md)** - **NEW** Advanced analysis documentation
+- **[SESSION_2_FEATURES.md](SESSION_2_FEATURES.md)** - Data visualization features summary
 - **[SETUP.md](SETUP.md)** - Complete deployment instructions
-- **[FEATURES.md](FEATURES.md)** - Comprehensive feature list (15+ major features)
+- **[FEATURES.md](FEATURES.md)** - Comprehensive feature list (20+ major features)
 - **[DEPLOYMENT_SUMMARY.md](DEPLOYMENT_SUMMARY.md)** - Initial MVP summary
 - **[DEPLOY_COOLIFY.md](DEPLOY_COOLIFY.md)** - Self-hosted deployment guide
 
@@ -286,4 +294,4 @@ Copyright © 2024 REI OPS™. All rights reserved.
 
 **Built with ❤️ for Canadian real estate investors**
 
-🚀 **Status**: Production Ready | v2.1.0 - **Now with Advanced Visualizations & Portfolio Analytics!**
+🚀 **Status**: Production Ready | v2.2.0 - **Now with Advanced Analysis Tools (Sensitivity, IRR/NPV, Tax Calculator, Airbnb Analysis)!**
