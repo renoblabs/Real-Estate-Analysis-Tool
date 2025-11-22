@@ -75,15 +75,23 @@ function assessRisk(
 }
 
 /**
- * Comprehensive risk analysis
+ * Calculate risk level from score
  */
-export function analyzeRisks(
+function getRiskLevel(score: number): RiskLevel {
+  if (score >= 70) return 'Critical';
+  if (score >= 50) return 'High';
+  if (score >= 30) return 'Medium';
+  return 'Low';
+}
+
+/**
+ * Assess financial risks (Cash Flow, Leverage, DSCR)
+ */
+function assessFinancialRisks(
   inputs: PropertyInputs,
   analysis: DealAnalysis
-): RiskAnalysis {
-  const risk_factors: RiskFactor[] = [];
-
-  // 1. FINANCIAL RISKS
+): RiskFactor[] {
+  const risks: RiskFactor[] = [];
 
   // Cash Flow Risk
   const cashFlowMargin = Math.abs(analysis.cash_flow.monthly_net);
@@ -100,7 +108,7 @@ export function analyzeRisks(
     cashFlowRiskScore = 10;
   }
 
-  risk_factors.push({
+  risks.push({
     ...assessRisk(
       cashFlowRiskScore,
       analysis.cash_flow.monthly_net < 0
@@ -131,7 +139,7 @@ export function analyzeRisks(
     leverageRiskScore = 15;
   }
 
-  risk_factors.push({
+  risks.push({
     ...assessRisk(
       leverageRiskScore,
       `Loan-to-value ratio of ${ltv.toFixed(1)}% means ${ltv >= 80 ? 'high' : 'moderate'} leverage`,
@@ -159,7 +167,7 @@ export function analyzeRisks(
     dscrRiskScore = 10;
   }
 
-  risk_factors.push({
+  risks.push({
     ...assessRisk(
       dscrRiskScore,
       `DSCR of ${analysis.metrics.dscr.toFixed(2)} is ${analysis.metrics.dscr < 1.15 ? 'below lender requirements' : 'acceptable'}`,
@@ -173,7 +181,17 @@ export function analyzeRisks(
     category: 'Debt Service Coverage Risk',
   });
 
-  // 2. MARKET RISKS
+  return risks;
+}
+
+/**
+ * Assess market risks (Vacancy, Property Age, Valuation)
+ */
+function assessMarketRisks(
+  inputs: PropertyInputs,
+  analysis: DealAnalysis
+): RiskFactor[] {
+  const risks: RiskFactor[] = [];
 
   // Vacancy Risk
   const vacancyRate = inputs.vacancy_rate;
@@ -189,7 +207,7 @@ export function analyzeRisks(
     vacancyRiskScore = 10;
   }
 
-  risk_factors.push({
+  risks.push({
     ...assessRisk(
       vacancyRiskScore,
       `Vacancy rate of ${vacancyRate}% ${vacancyRate > 7 ? 'exceeds typical market average' : 'is within normal range'}`,
@@ -218,7 +236,7 @@ export function analyzeRisks(
     ageRiskScore = 10;
   }
 
-  risk_factors.push({
+  risks.push({
     ...assessRisk(
       ageRiskScore,
       `Property built in ${inputs.year_built} (${propertyAge} years old) may require ${propertyAge >= 40 ? 'major' : 'moderate'} capital improvements`,
@@ -234,7 +252,6 @@ export function analyzeRisks(
   });
 
   // Market Overvaluation Risk
-  const pricePerSqFt = analysis.acquisition.purchase_price / inputs.square_feet;
   const grm = analysis.metrics.grm;
   let valuationRiskScore = 0;
 
@@ -249,7 +266,7 @@ export function analyzeRisks(
     valuationRiskScore = 15;
   }
 
-  risk_factors.push({
+  risks.push({
     ...assessRisk(
       valuationRiskScore,
       `GRM of ${grm.toFixed(1)} suggests ${grm > 15 ? 'overpriced relative to income' : 'reasonable valuation'}`,
@@ -264,13 +281,23 @@ export function analyzeRisks(
     category: 'Valuation Risk',
   });
 
-  // 3. OPERATIONAL RISKS
+  return risks;
+}
+
+/**
+ * Assess operational risks (Property Management, Maintenance)
+ */
+function assessOperationalRisks(
+  inputs: PropertyInputs,
+  analysis: DealAnalysis
+): RiskFactor[] {
+  const risks: RiskFactor[] = [];
 
   // Property Management Risk
   const hasPM = inputs.property_management_percent > 0;
   let pmRiskScore = hasPM ? 15 : 50;
 
-  risk_factors.push({
+  risks.push({
     ...assessRisk(
       pmRiskScore,
       hasPM
@@ -301,7 +328,7 @@ export function analyzeRisks(
     maintenanceRiskScore = 10;
   }
 
-  risk_factors.push({
+  risks.push({
     ...assessRisk(
       maintenanceRiskScore,
       `Maintenance budget at ${maintenancePercent.toFixed(1)}% of property value is ${maintenancePercent < 1 ? 'insufficient' : 'adequate'}`,
@@ -316,7 +343,17 @@ export function analyzeRisks(
     category: 'Maintenance Risk',
   });
 
-  // 4. LIQUIDITY RISKS
+  return risks;
+}
+
+/**
+ * Assess liquidity risks (Capital Requirements)
+ */
+function assessLiquidityRisks(
+  inputs: PropertyInputs,
+  analysis: DealAnalysis
+): RiskFactor[] {
+  const risks: RiskFactor[] = [];
 
   // Capital Requirements Risk
   const totalCashNeeded = analysis.acquisition.total_cash_needed;
@@ -330,7 +367,7 @@ export function analyzeRisks(
     liquidityRiskScore = 15;
   }
 
-  risk_factors.push({
+  risks.push({
     ...assessRisk(
       liquidityRiskScore,
       `Total cash required of ${totalCashNeeded.toFixed(0)} represents significant capital commitment`,
@@ -345,7 +382,13 @@ export function analyzeRisks(
     category: 'Liquidity Risk',
   });
 
-  // Calculate category scores
+  return risks;
+}
+
+/**
+ * Calculate category risk scores from risk factors
+ */
+function calculateCategoryScores(risk_factors: RiskFactor[]) {
   const financial_risks = risk_factors.filter(r =>
     ['Cash Flow Risk', 'Leverage Risk', 'Debt Service Coverage Risk'].includes(r.category)
   );
@@ -361,7 +404,10 @@ export function analyzeRisks(
   );
   const operational_risk_score = operational_risks.reduce((sum, r) => sum + r.score, 0) / operational_risks.length;
 
-  const liquidity_risk_score = liquidityRiskScore;
+  const liquidity_risks = risk_factors.filter(r =>
+    r.category === 'Liquidity Risk'
+  );
+  const liquidity_risk_score = liquidity_risks.reduce((sum, r) => sum + r.score, 0) / liquidity_risks.length;
 
   // Overall risk score (weighted average)
   const overall_risk_score =
@@ -370,19 +416,20 @@ export function analyzeRisks(
     (operational_risk_score * 0.2) +
     (liquidity_risk_score * 0.1);
 
-  // Overall risk level
-  let overall_risk_level: RiskLevel;
-  if (overall_risk_score >= 70) overall_risk_level = 'Critical';
-  else if (overall_risk_score >= 50) overall_risk_level = 'High';
-  else if (overall_risk_score >= 30) overall_risk_level = 'Medium';
-  else overall_risk_level = 'Low';
+  return {
+    financial_risk_score,
+    market_risk_score,
+    operational_risk_score,
+    liquidity_risk_score,
+    overall_risk_score,
+  };
+}
 
-  // Critical and high risks
-  const critical_risks = risk_factors.filter(r => r.risk_level === 'Critical').map(r => r.description);
-  const high_risks = risk_factors.filter(r => r.risk_level === 'High').map(r => r.description);
-
-  // Stress test scenarios
-  const stress_test = [
+/**
+ * Generate stress test scenarios
+ */
+function generateStressTests(analysis: DealAnalysis) {
+  return [
     {
       scenario: 'Vacancy increases to 10%',
       monthly_cash_flow_impact: -analysis.revenue.gross_monthly_rent * 0.05, // 5% increase in vacancy
@@ -408,7 +455,12 @@ export function analyzeRisks(
       break_even_impact: `Equity would decrease by ${(analysis.acquisition.purchase_price * 0.1).toFixed(0)}, limiting refinance options`,
     },
   ];
+}
 
+/**
+ * Generate risk tolerance and investor recommendations
+ */
+function generateRecommendations(overall_risk_score: number, overall_risk_level: RiskLevel) {
   // Risk tolerance recommendation
   let risk_tolerance_recommendation: 'Conservative' | 'Moderate' | 'Aggressive';
   if (overall_risk_score < 30) {
@@ -444,18 +496,60 @@ export function analyzeRisks(
   }
 
   return {
-    overall_risk_score,
-    overall_risk_level,
-    risk_factors,
-    financial_risk_score,
-    market_risk_score,
-    operational_risk_score,
-    liquidity_risk_score,
-    critical_risks,
-    high_risks,
-    stress_test,
     risk_tolerance_recommendation,
     suitable_for_investor_types,
     overall_recommendation,
+  };
+}
+
+/**
+ * Comprehensive risk analysis (Main orchestrator)
+ */
+export function analyzeRisks(
+  inputs: PropertyInputs,
+  analysis: DealAnalysis
+): RiskAnalysis {
+  // Assess all risk categories
+  const financial_risks = assessFinancialRisks(inputs, analysis);
+  const market_risks = assessMarketRisks(inputs, analysis);
+  const operational_risks = assessOperationalRisks(inputs, analysis);
+  const liquidity_risks = assessLiquidityRisks(inputs, analysis);
+
+  // Combine all risk factors
+  const risk_factors = [
+    ...financial_risks,
+    ...market_risks,
+    ...operational_risks,
+    ...liquidity_risks,
+  ];
+
+  // Calculate category scores
+  const scores = calculateCategoryScores(risk_factors);
+
+  // Determine overall risk level
+  const overall_risk_level = getRiskLevel(scores.overall_risk_score);
+
+  // Extract critical and high risks
+  const critical_risks = risk_factors.filter(r => r.risk_level === 'Critical').map(r => r.description);
+  const high_risks = risk_factors.filter(r => r.risk_level === 'High').map(r => r.description);
+
+  // Generate stress tests
+  const stress_test = generateStressTests(analysis);
+
+  // Generate recommendations
+  const recommendations = generateRecommendations(scores.overall_risk_score, overall_risk_level);
+
+  return {
+    overall_risk_score: scores.overall_risk_score,
+    overall_risk_level,
+    risk_factors,
+    financial_risk_score: scores.financial_risk_score,
+    market_risk_score: scores.market_risk_score,
+    operational_risk_score: scores.operational_risk_score,
+    liquidity_risk_score: scores.liquidity_risk_score,
+    critical_risks,
+    high_risks,
+    stress_test,
+    ...recommendations,
   };
 }
