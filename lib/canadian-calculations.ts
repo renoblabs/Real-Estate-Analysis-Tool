@@ -2,6 +2,7 @@
 
 import type { CMHCResult, LandTransferTaxResult, StressTestResult, Province } from '@/types';
 import { OSFI_STRESS_TEST_FLOOR, OSFI_STRESS_TEST_BUFFER } from '@/constants/market-data';
+import { getCMHCPremiumRate, ONTARIO_LTT_BRACKETS, TORONTO_MUNICIPAL_LTT_BRACKETS, PROVINCIAL_LTT_RATES, OSFI_STRESS_TEST } from '@/lib/constants/canadian-rates';
 
 /**
  * Calculate CMHC insurance premium
@@ -33,15 +34,10 @@ export function calculateCMHCInsurance(
     };
   }
 
-  // CMHC Premium Rates (as of 2024)
-  let premiumRate: number;
-  if (downPaymentPercent >= 15 && downPaymentPercent < 20) {
-    premiumRate = 2.80;
-  } else if (downPaymentPercent >= 10 && downPaymentPercent < 15) {
-    premiumRate = 3.10;
-  } else if (downPaymentPercent >= 5 && downPaymentPercent < 10) {
-    premiumRate = 4.00;
-  } else {
+  // CMHC Premium Rates (using constants from canadian-rates.ts)
+  const premiumRate = getCMHCPremiumRate(downPaymentPercent);
+
+  if (downPaymentPercent < 5) {
     throw new Error("Minimum 5% down payment required");
   }
 
@@ -56,6 +52,28 @@ export function calculateCMHCInsurance(
     totalMortgageWithInsurance,
     message: `CMHC insurance premium: ${premiumRate}% of mortgage amount`
   };
+}
+
+/**
+ * Helper function to calculate tax from brackets
+ */
+function calculateTaxFromBrackets(
+  price: number,
+  brackets: ReadonlyArray<{ max: number; rate: number }>
+): number {
+  let tax = 0;
+  let previousMax = 0;
+
+  for (const bracket of brackets) {
+    const taxableInBracket = Math.min(price, bracket.max) - previousMax;
+    if (taxableInBracket > 0) {
+      tax += taxableInBracket * (bracket.rate / 100);
+    }
+    if (price <= bracket.max) break;
+    previousMax = bracket.max;
+  }
+
+  return tax;
 }
 
 /**
@@ -74,30 +92,13 @@ export function calculateLandTransferTax(
 
   switch (province) {
     case 'ON':
-      // Ontario Provincial LTT
-      if (purchasePrice <= 55000) {
-        provincialTax = purchasePrice * 0.005;
-      } else if (purchasePrice <= 250000) {
-        provincialTax = 275 + ((purchasePrice - 55000) * 0.01);
-      } else if (purchasePrice <= 400000) {
-        provincialTax = 2225 + ((purchasePrice - 250000) * 0.015);
-      } else {
-        provincialTax = 4475 + ((purchasePrice - 400000) * 0.02);
-      }
-
+      // Ontario Provincial LTT (using constants)
+      provincialTax = calculateTaxFromBrackets(purchasePrice, ONTARIO_LTT_BRACKETS);
       breakdown.push(`Ontario Provincial LTT: $${provincialTax.toFixed(2)}`);
 
       // Toronto Municipal LTT (if applicable)
       if (city?.toLowerCase().includes('toronto')) {
-        if (purchasePrice <= 55000) {
-          municipalTax = purchasePrice * 0.005;
-        } else if (purchasePrice <= 250000) {
-          municipalTax = 275 + ((purchasePrice - 55000) * 0.01);
-        } else if (purchasePrice <= 400000) {
-          municipalTax = 2225 + ((purchasePrice - 250000) * 0.015);
-        } else {
-          municipalTax = 4475 + ((purchasePrice - 400000) * 0.02);
-        }
+        municipalTax = calculateTaxFromBrackets(purchasePrice, TORONTO_MUNICIPAL_LTT_BRACKETS);
         breakdown.push(`Toronto Municipal LTT: $${municipalTax.toFixed(2)}`);
       }
 

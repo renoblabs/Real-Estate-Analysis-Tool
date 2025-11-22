@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { createClient } from '@/lib/supabase/client';
 import { analyzeDeal } from '@/lib/deal-analyzer';
 import { saveDeal } from '@/lib/database';
+import { toast } from 'sonner';
 import type { PropertyInputs, DealAnalysis } from '@/types';
 
 export default function AnalyzePage() {
@@ -81,7 +82,7 @@ export default function AnalyzePage() {
 
   const handleAnalyze = async () => {
     if (!formData.address || !formData.city) {
-      alert('Please fill in property address and city');
+      toast.error('Please fill in property address and city');
       return;
     }
 
@@ -93,9 +94,11 @@ export default function AnalyzePage() {
       // Save to database
       if (user) {
         await saveDeal(user.id, result, 'analyzing');
+        toast.success('Deal analyzed successfully!');
       }
     } catch (error: any) {
-      alert('Error analyzing deal: ' + error.message);
+      toast.error('Error analyzing deal: ' + (error.message || 'Please try again'));
+      console.error('Analysis error:', error);
     } finally {
       setAnalyzing(false);
     }
