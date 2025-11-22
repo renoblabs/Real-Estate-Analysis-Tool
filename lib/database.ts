@@ -2,6 +2,7 @@
 
 import type { Deal, UserPreferences, DealAnalysis, DealStatus } from '@/types';
 import { createClient as createBrowserClient } from './supabase/client';
+import { withRetry } from './utils';
 
 /**
  * Save a new deal to the database
@@ -74,16 +75,22 @@ export async function saveDeal(
       is_favorite: false
     };
 
-    const { data, error } = await supabase
-      .from('deals')
-      .insert(dealData)
-      .select()
-      .single();
+    // Use retry logic for database operations
+    const { data, error } = await withRetry(
+      async () => supabase
+        .from('deals')
+        .insert(dealData)
+        .select()
+        .single(),
+      3, // 3 retries
+      1000 // 1 second delay with exponential backoff
+    );
 
     if (error) throw error;
 
     return { data, error: null };
   } catch (error) {
+    console.error('saveDeal failed after retries:', error);
     return { data: null, error: error as Error };
   }
 }
@@ -162,17 +169,23 @@ export async function updateDeal(
       updateData.notes = notes;
     }
 
-    const { data, error } = await supabase
-      .from('deals')
-      .update(updateData)
-      .eq('id', dealId)
-      .select()
-      .single();
+    // Use retry logic for database operations
+    const { data, error } = await withRetry(
+      async () => supabase
+        .from('deals')
+        .update(updateData)
+        .eq('id', dealId)
+        .select()
+        .single(),
+      3,
+      1000
+    );
 
     if (error) throw error;
 
     return { data, error: null };
   } catch (error) {
+    console.error('updateDeal failed after retries:', error);
     return { data: null, error: error as Error };
   }
 }
@@ -186,16 +199,22 @@ export async function getUserDeals(
   try {
     const supabase = createBrowserClient();
 
-    const { data, error } = await supabase
-      .from('deals')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
+    // Use retry logic for database operations
+    const { data, error } = await withRetry(
+      async () => supabase
+        .from('deals')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false }),
+      3,
+      1000
+    );
 
     if (error) throw error;
 
     return { data, error: null };
   } catch (error) {
+    console.error('getUserDeals failed after retries:', error);
     return { data: null, error: error as Error };
   }
 }
@@ -209,16 +228,22 @@ export async function getDeal(
   try {
     const supabase = createBrowserClient();
 
-    const { data, error } = await supabase
-      .from('deals')
-      .select('*')
-      .eq('id', dealId)
-      .single();
+    // Use retry logic for database operations
+    const { data, error } = await withRetry(
+      async () => supabase
+        .from('deals')
+        .select('*')
+        .eq('id', dealId)
+        .single(),
+      3,
+      1000
+    );
 
     if (error) throw error;
 
     return { data, error: null };
   } catch (error) {
+    console.error('getDeal failed after retries:', error);
     return { data: null, error: error as Error };
   }
 }
