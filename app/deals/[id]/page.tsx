@@ -498,9 +498,11 @@ export default function DealDetailPage() {
         </Card>
 
         {/* Action Buttons */}
-        <div className="flex gap-4">
-          <Link href="/deals">
-            <Button variant="outline">Back to All Deals</Button>
+        <div className="flex flex-wrap gap-4">
+          <Link href={`/deals/${dealId}/analysis`}>
+            <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white">
+              🎯 Advanced Analysis
+            </Button>
           </Link>
           <Link href={`/analyze?edit=${dealId}`}>
             <Button>Edit Deal</Button>
@@ -508,6 +510,9 @@ export default function DealDetailPage() {
           <Button variant="outline" onClick={() => window.print()}>
             Print Report
           </Button>
+          <Link href="/deals">
+            <Button variant="outline">Back to All Deals</Button>
+          </Link>
         </div>
       </main>
     </div>

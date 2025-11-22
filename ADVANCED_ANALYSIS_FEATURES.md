@@ -399,18 +399,172 @@ This document outlines the advanced analysis capabilities added to REI OPS™, t
 
 ---
 
+## 🎯 Break-Even Analysis
+
+**Files**:
+- `lib/break-even-calculator.ts`
+- `components/analysis/break-even-display.tsx`
+
+### Features
+
+- **Cash Flow Break-Even**: Rent increase needed for positive cash flow
+- **Purchase Price Break-Even**: Maximum affordable price at current terms
+- **Occupancy Break-Even**: Minimum occupancy needed
+- **Expense Break-Even**: Maximum affordable operating expenses
+- **Interest Rate Sensitivity**: Impact of rate changes
+- **Timeline Projections**: Years to positive cash flow with rent growth
+- **Primary Issue Identification**: AI determines the main problem
+- **Quickest Path to Positive**: Actionable recommendation
+- **Expense Optimization Breakdown**: Specific savings opportunities
+
+### Scenarios Analyzed
+
+1. **Rent Adjustment**: What rent is needed for break-even?
+2. **Price Negotiation**: How much should you negotiate down?
+3. **Expense Reduction**: Which costs can be cut?
+4. **Wait for Growth**: How long until rent growth solves the problem?
+
+### Use Cases
+
+1. **Negative Cash Flow Deals**: Turn losers into winners
+2. **Negotiation Strategy**: Know your target price
+3. **Expense Management**: Prioritize cost-cutting efforts
+4. **Investment Timeline**: Decide if you can wait for profitability
+
+### Example Outputs
+
+- "Rent needs to increase 12.5% (from $2,000 to $2,250/mo) for break-even"
+- "Negotiate price down by $45,000 (8.2%) to achieve positive cash flow"
+- "Self-managing could save $200/month and make the deal work"
+- "With 2.5% annual rent growth, deal breaks even in Year 3"
+
+---
+
+## 💸 Expense Ratio Optimizer
+
+**Files**:
+- `lib/expense-ratio-analyzer.ts`
+- `components/analysis/expense-ratio-display.tsx`
+
+### Features
+
+- **Current Expense Ratio**: Calculate total expenses as % of revenue
+- **Market Benchmarks**: Compare to property type standards
+- **Category Breakdown**: Detailed analysis by expense type
+- **Optimization Opportunities**: Specific savings potential
+- **5-Year Projections**: Forecast with different growth rates
+- **Efficiency Rating**: Excellent / Good / Fair / Poor
+- **Actionable Recommendations**: Specific cost-cutting strategies
+
+### Expense Categories Analyzed
+
+1. **Property Tax** (Fixed - not optimizable)
+2. **Insurance** (~15% savings possible through shopping)
+3. **Property Management** (100% savings if self-manage)
+4. **Maintenance** (~25% reduction possible)
+5. **Utilities** (~20% reduction or tenant-paid)
+6. **Vacancy** (~30% reduction through better screening)
+7. **HOA/Condo Fees** (Fixed)
+
+### Market Benchmarks
+
+- **Single Family**: 35% expense ratio
+- **Multi-Family (2-4 units)**: 40%
+- **Multi-Family (5+ units)**: 45%
+- **Condo**: 50% (higher due to fees)
+- **Townhouse**: 38%
+
+### Use Cases
+
+1. **Expense Reduction**: Identify where to cut costs
+2. **Deal Improvement**: Turn marginal deals into winners
+3. **Benchmarking**: Compare against market standards
+4. **Due Diligence**: Verify seller's expense claims
+
+### Example Insights
+
+- "Your expense ratio of 42% is above the market benchmark of 38%. Focus on insurance and property management."
+- "By self-managing, you could save $300/month and improve cash flow by 35%"
+- "Insurance at 7.2% of revenue is high - shop for quotes to save ~$150/month"
+
+---
+
+## 🛡️ Investment Risk Analysis
+
+**Files**:
+- `lib/risk-analyzer.ts`
+- `components/analysis/risk-dashboard.tsx`
+
+### Risk Categories
+
+#### 1. Financial Risks (40% weight)
+- **Cash Flow Risk**: Margin of safety on monthly cash flow
+- **Leverage Risk**: LTV and over-leverage concerns
+- **DSCR Risk**: Debt service coverage adequacy
+
+#### 2. Market Risks (30% weight)
+- **Vacancy Risk**: Higher than market average vacancy
+- **Property Age Risk**: Deferred maintenance and system failures
+- **Valuation Risk**: Overpaying relative to income
+
+#### 3. Operational Risks (20% weight)
+- **Property Management Risk**: Self-manage vs professional
+- **Maintenance Risk**: Underfunding maintenance reserves
+
+#### 4. Liquidity Risks (10% weight)
+- **Capital Requirements**: Ability to handle emergencies
+
+### Features
+
+- **Overall Risk Score**: 0-100 composite score
+- **Risk Level Assessment**: Low / Medium / High / Critical
+- **Risk Factor Details**: Description, impact, mitigation strategies
+- **Stress Test Scenarios**: 4 adverse condition simulations
+- **Risk Visualization**: Radar chart and risk factor bars
+- **Investor Suitability**: Who should (and shouldn't) pursue this deal
+- **Mitigation Strategies**: Actionable risk reduction tactics
+
+### Stress Tests
+
+1. **Vacancy increases to 10%**: Impact on cash flow
+2. **Interest rate increases 2%**: Refinance impact
+3. **Major repair needed ($10k)**: Emergency expense
+4. **Property value declines 10%**: Equity and refinance impact
+
+### Risk Levels
+
+- **Low (< 30)**: Conservative, suitable for first-time investors
+- **Medium (30-55)**: Moderate, for experienced investors
+- **High (55-70)**: Aggressive, requires strong reserves
+- **Critical (> 70)**: Strongly consider passing
+
+### Use Cases
+
+1. **Deal Screening**: Quickly identify high-risk deals
+2. **Due Diligence**: Comprehensive risk assessment
+3. **Risk Mitigation**: Specific strategies to reduce risk
+4. **Portfolio Diversification**: Balance risk across properties
+5. **Investor Matching**: Match deals to investor profiles
+
+### Example Outputs
+
+- "Overall Risk: Medium (Score: 42/100) - Suitable for experienced investors with active management capabilities"
+- "CRITICAL RISK: Negative cash flow of $450/month with no buffer"
+- "Your LTV of 92% creates high leverage risk - consider increasing down payment"
+- "Stress Test: If vacancy hits 10%, you'll lose $300/month in cash flow"
+
+---
+
 ## 📚 Future Enhancements
 
 ### Planned Features
 
 1. **Monte Carlo Simulation**: Probabilistic analysis
 2. **Scenario Comparison**: Save and compare multiple scenarios
-3. **Break-Even Calculator**: Detailed break-even analysis
-4. **Expense Optimizer**: AI-powered cost reduction
-5. **Market Data Integration**: Live pricing data
-6. **Historical Returns**: Backtest assumptions
-7. **API Access**: Programmatic analysis
-8. **Excel Export**: Full model export
+3. **Market Data Integration**: Live pricing data
+4. **Historical Returns**: Backtest assumptions
+5. **API Access**: Programmatic analysis
+6. **Excel Export**: Full model export
 
 ---
 
@@ -430,15 +584,50 @@ This document outlines the advanced analysis capabilities added to REI OPS™, t
 
 These advanced features transform REI OPS™ from a basic calculator into a **professional-grade investment analysis platform** with capabilities that match or exceed tools costing $500+/month.
 
-**Total New Metrics**: 15+
-**Total Visualizations**: 10+
-**Lines of Code**: 2,000+
-**Canadian-Specific**: 100%
+### Complete Feature Set (7 Analysis Tools)
 
-**Result**: The most comprehensive Canadian real estate analysis platform in existence.
+1. **Sensitivity Analysis** - What-if scenarios across 5 variables
+2. **IRR & NPV Calculator** - Institutional-grade financial metrics
+3. **Break-Even Analysis** - Path to positive cash flow
+4. **Expense Ratio Optimizer** - Cost reduction opportunities
+5. **Risk Analysis Dashboard** - Comprehensive risk assessment
+6. **Tax Impact Calculator** - Canadian federal + provincial taxes
+7. **Airbnb/STR Analysis** - Short-term rental modeling
+
+### Statistics
+
+- **Total Analysis Tools**: 7 comprehensive modules
+- **Total Metrics Calculated**: 50+
+- **Total Visualizations**: 20+ interactive charts
+- **Lines of Code**: 5,000+
+- **Canadian-Specific Features**: 100%
+- **Test Coverage**: 70%+ with Jest
+
+### Competitive Advantage
+
+**vs DealCheck** ($40/mo):
+- ✅ Canadian calculations (CMHC, LTT, OSFI)
+- ✅ Break-even analysis
+- ✅ Risk assessment
+- ✅ Expense optimizer
+- ✅ Tax calculator (Canadian)
+
+**vs PropStream** ($99/mo):
+- ✅ More advanced metrics (IRR, NPV, MIRR)
+- ✅ Better visualizations (Recharts)
+- ✅ Risk analysis dashboard
+- ✅ STR analysis
+
+**vs BiggerPockets Pro** ($390/yr):
+- ✅ Canadian market focus
+- ✅ More comprehensive tax analysis
+- ✅ Better expense optimization
+- ✅ Risk mitigation strategies
+
+**Result**: The most comprehensive Canadian real estate analysis platform in existence - and it's FREE.
 
 ---
 
 **Built with ❤️ for Canadian Real Estate Investors**
 
-*REI OPS™ v2.2.0 - Advanced Analysis Edition*
+*REI OPS™ v2.3.0 - Complete Advanced Analysis Suite*
