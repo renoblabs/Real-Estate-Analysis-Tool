@@ -11,6 +11,7 @@ import { createClient } from '@/lib/supabase/client';
 import { getDeal } from '@/lib/database';
 import { analyzeDeal } from '@/lib/deal-analyzer';
 import { toast } from 'sonner';
+import { withTimeout, formatCurrency } from '@/lib/utils';
 import type { Deal, DealAnalysis, PropertyInputs } from '@/types';
 import { CashFlowProjectionChart } from '@/components/charts/cash-flow-projection-chart';
 import { DealMetricsChart } from '@/components/charts/deal-metrics-chart';
@@ -31,14 +32,24 @@ export default function DealDetailPage() {
   const loadDeal = async () => {
     try {
       const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
+
+      // Add timeout to auth check (10 seconds)
+      const { data: { user } } = await withTimeout(
+        supabase.auth.getUser(),
+        10000
+      );
 
       if (!user) {
         router.push('/login');
         return;
       }
 
-      const { data, error } = await getDeal(dealId);
+      // Add timeout to database query (15 seconds)
+      const { data, error } = await withTimeout(
+        getDeal(dealId),
+        15000
+      );
+
       if (error) throw error;
       if (!data) throw new Error('Deal not found');
 
@@ -80,8 +91,14 @@ export default function DealDetailPage() {
       const analysisResult = analyzeDeal(inputs);
       setAnalysis(analysisResult);
     } catch (error: any) {
-      toast.error('Failed to load deal');
-      console.error(error);
+      const message = error.message?.includes('timed out')
+        ? 'Request timed out. Please check your connection and try again.'
+        : error.message === 'Deal not found'
+        ? 'Deal not found. It may have been deleted.'
+        : 'Failed to load deal. Please try again.';
+
+      toast.error(message);
+      console.error('Load deal error:', error);
     } finally {
       setLoading(false);
     }
@@ -96,14 +113,6 @@ export default function DealDetailPage() {
       case 'F': return 'bg-red-500 text-white';
       default: return 'bg-gray-500 text-white';
     }
-  };
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-CA', {
-      style: 'currency',
-      currency: 'CAD',
-      maximumFractionDigits: 2,
-    }).format(value);
   };
 
   if (loading || !analysis || !deal) {

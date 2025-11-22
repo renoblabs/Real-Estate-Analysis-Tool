@@ -1,5 +1,7 @@
 'use client';
 
+import { formatCurrency as formatCurrencyUtil, formatPercent } from '@/lib/utils';
+
 import { useState } from 'react';
 import {
   BarChart,
@@ -29,13 +31,6 @@ export function BreakEvenDisplay({ analysis }: BreakEvenDisplayProps) {
   const breakEven = calculateBreakEven(analysis);
   const isPositive = analysis.cash_flow.monthly_net >= 0;
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-CA', {
-      style: 'currency',
-      currency: 'CAD',
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
 
   const formatPercent = (value: number) => {
     return `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
@@ -108,8 +103,8 @@ export function BreakEvenDisplay({ analysis }: BreakEvenDisplayProps) {
             </h3>
             <p className="text-sm text-gray-700">
               {isPositive
-                ? `This deal generates positive cash flow of ${formatCurrency(analysis.cash_flow.monthly_net)}/month. The analysis below shows how much buffer you have.`
-                : `Current monthly shortfall: ${formatCurrency(Math.abs(analysis.cash_flow.monthly_net))}. This analysis shows what needs to change to reach break-even.`
+                ? `This deal generates positive cash flow of ${formatCurrencyUtil(analysis.cash_flow.monthly_net)}/month. The analysis below shows how much buffer you have.`
+                : `Current monthly shortfall: ${formatCurrencyUtil(Math.abs(analysis.cash_flow.monthly_net))}. This analysis shows what needs to change to reach break-even.`
               }
             </p>
           </div>
@@ -143,7 +138,7 @@ export function BreakEvenDisplay({ analysis }: BreakEvenDisplayProps) {
           </div>
           <div className="mb-2">
             <div className="text-2xl font-bold text-blue-600">
-              {formatCurrency(breakEven.rent_at_break_even)}
+              {formatCurrencyUtil(breakEven.rent_at_break_even)}
             </div>
             <div className="text-xs text-gray-500">Required monthly rent</div>
           </div>
@@ -151,7 +146,7 @@ export function BreakEvenDisplay({ analysis }: BreakEvenDisplayProps) {
             {formatPercent(breakEven.rent_increase_needed_percent)} increase
           </div>
           <div className="text-xs text-gray-600 mt-1">
-            +{formatCurrency(breakEven.rent_increase_needed_dollars)}/mo
+            +{formatCurrencyUtil(breakEven.rent_increase_needed_dollars)}/mo
           </div>
         </div>
 
@@ -163,7 +158,7 @@ export function BreakEvenDisplay({ analysis }: BreakEvenDisplayProps) {
           </div>
           <div className="mb-2">
             <div className="text-2xl font-bold text-green-600">
-              {formatCurrency(breakEven.max_purchase_price_for_break_even)}
+              {formatCurrencyUtil(breakEven.max_purchase_price_for_break_even)}
             </div>
             <div className="text-xs text-gray-500">Max affordable price</div>
           </div>
@@ -171,7 +166,7 @@ export function BreakEvenDisplay({ analysis }: BreakEvenDisplayProps) {
             {formatPercent(breakEven.price_reduction_percent)} reduction
           </div>
           <div className="text-xs text-gray-600 mt-1">
-            -{formatCurrency(Math.abs(breakEven.price_reduction_for_break_even))}
+            -{formatCurrencyUtil(Math.abs(breakEven.price_reduction_for_break_even))}
           </div>
         </div>
 
@@ -183,7 +178,7 @@ export function BreakEvenDisplay({ analysis }: BreakEvenDisplayProps) {
           </div>
           <div className="mb-2">
             <div className="text-2xl font-bold text-purple-600">
-              {formatCurrency(breakEven.max_affordable_expenses)}
+              {formatCurrencyUtil(breakEven.max_affordable_expenses)}
             </div>
             <div className="text-xs text-gray-500">Max monthly expenses</div>
           </div>
@@ -191,7 +186,7 @@ export function BreakEvenDisplay({ analysis }: BreakEvenDisplayProps) {
             {formatPercent(breakEven.expense_reduction_percent)} reduction
           </div>
           <div className="text-xs text-gray-600 mt-1">
-            -{formatCurrency(Math.abs(breakEven.expense_reduction_for_break_even))}
+            -{formatCurrencyUtil(Math.abs(breakEven.expense_reduction_for_break_even))}
           </div>
         </div>
 
@@ -228,10 +223,10 @@ export function BreakEvenDisplay({ analysis }: BreakEvenDisplayProps) {
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={comparisonData} layout="horizontal">
               <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-              <XAxis type="number" tick={{ fontSize: 12 }} tickFormatter={(value) => formatCurrency(value)} />
+              <XAxis type="number" tick={{ fontSize: 12 }} tickFormatter={(value) => formatCurrencyUtil(value)} />
               <YAxis type="category" dataKey="category" tick={{ fontSize: 12 }} width={120} />
               <Tooltip
-                formatter={(value: number) => formatCurrency(value)}
+                formatter={(value: number) => formatCurrencyUtil(value)}
                 labelStyle={{ color: '#000' }}
               />
               <Legend />
@@ -254,9 +249,9 @@ export function BreakEvenDisplay({ analysis }: BreakEvenDisplayProps) {
               <LineChart data={timelineData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
                 <XAxis dataKey="year" tick={{ fontSize: 12 }} stroke="#666" />
-                <YAxis tick={{ fontSize: 12 }} stroke="#666" tickFormatter={(value) => formatCurrency(value)} />
+                <YAxis tick={{ fontSize: 12 }} stroke="#666" tickFormatter={(value) => formatCurrencyUtil(value)} />
                 <Tooltip
-                  formatter={(value: number) => formatCurrency(value)}
+                  formatter={(value: number) => formatCurrencyUtil(value)}
                   labelStyle={{ color: '#000' }}
                 />
                 <Legend />
@@ -290,12 +285,12 @@ export function BreakEvenDisplay({ analysis }: BreakEvenDisplayProps) {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Current:</span>
-                  <span className="font-medium">{formatCurrency(breakEven.expense_optimization.current_property_mgmt)}/mo</span>
+                  <span className="font-medium">{formatCurrencyUtil(breakEven.expense_optimization.current_property_mgmt)}/mo</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Self-Manage (0%):</span>
                   <span className="font-medium text-green-600">
-                    Save {formatCurrency(breakEven.expense_optimization.savings_if_self_manage)}/mo
+                    Save {formatCurrencyUtil(breakEven.expense_optimization.savings_if_self_manage)}/mo
                   </span>
                 </div>
                 <div className="text-xs text-gray-500 mt-2">
@@ -310,12 +305,12 @@ export function BreakEvenDisplay({ analysis }: BreakEvenDisplayProps) {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Current:</span>
-                  <span className="font-medium">{formatCurrency(breakEven.expense_optimization.current_maintenance)}/mo</span>
+                  <span className="font-medium">{formatCurrencyUtil(breakEven.expense_optimization.current_maintenance)}/mo</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Reduce to 1% (from {((analysis.expenses.annual_maintenance / analysis.acquisition.purchase_price) * 100).toFixed(1)}%):</span>
                   <span className="font-medium text-green-600">
-                    Save {formatCurrency(breakEven.expense_optimization.savings_if_reduce_maintenance)}/mo
+                    Save {formatCurrencyUtil(breakEven.expense_optimization.savings_if_reduce_maintenance)}/mo
                   </span>
                 </div>
                 <div className="text-xs text-gray-500 mt-2">
@@ -330,12 +325,12 @@ export function BreakEvenDisplay({ analysis }: BreakEvenDisplayProps) {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Current:</span>
-                  <span className="font-medium">{formatCurrency(breakEven.expense_optimization.current_insurance)}/mo</span>
+                  <span className="font-medium">{formatCurrencyUtil(breakEven.expense_optimization.current_insurance)}/mo</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Shop for 15% savings:</span>
                   <span className="font-medium text-green-600">
-                    Save {formatCurrency(breakEven.expense_optimization.savings_if_shop_insurance)}/mo
+                    Save {formatCurrencyUtil(breakEven.expense_optimization.savings_if_shop_insurance)}/mo
                   </span>
                 </div>
                 <div className="text-xs text-gray-500 mt-2">
@@ -351,7 +346,7 @@ export function BreakEvenDisplay({ analysis }: BreakEvenDisplayProps) {
                 <div className="flex justify-between">
                   <span className="text-gray-700">All Optimizations:</span>
                   <span className="font-bold text-blue-600 text-lg">
-                    {formatCurrency(breakEven.expense_optimization.total_potential_savings)}/mo
+                    {formatCurrencyUtil(breakEven.expense_optimization.total_potential_savings)}/mo
                   </span>
                 </div>
                 <div className="text-xs text-gray-600 mt-2">
@@ -420,13 +415,13 @@ export function BreakEvenDisplay({ analysis }: BreakEvenDisplayProps) {
               {Math.abs(breakEven.price_reduction_percent) <= 10 && (
                 <li className="flex items-start gap-2">
                   <span className="text-green-600 font-bold mt-0.5">1.</span>
-                  <span>Negotiate purchase price down by {formatPercent(Math.abs(breakEven.price_reduction_percent))} ({formatCurrency(Math.abs(breakEven.price_reduction_for_break_even))}) - this is your best option</span>
+                  <span>Negotiate purchase price down by {formatPercent(Math.abs(breakEven.price_reduction_percent))} ({formatCurrencyUtil(Math.abs(breakEven.price_reduction_for_break_even))}) - this is your best option</span>
                 </li>
               )}
               {breakEven.expense_optimization && breakEven.expense_optimization.total_potential_savings > 0 && (
                 <li className="flex items-start gap-2">
                   <span className="text-blue-600 font-bold mt-0.5">2.</span>
-                  <span>Implement expense optimizations to save {formatCurrency(breakEven.expense_optimization.total_potential_savings)}/month</span>
+                  <span>Implement expense optimizations to save {formatCurrencyUtil(breakEven.expense_optimization.total_potential_savings)}/month</span>
                 </li>
               )}
               {Math.abs(breakEven.rent_increase_needed_percent) <= 15 && (

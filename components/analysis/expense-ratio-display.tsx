@@ -1,5 +1,7 @@
 'use client';
 
+import { formatCurrency as formatCurrencyUtil, formatPercent } from '@/lib/utils';
+
 import { useState } from 'react';
 import {
   PieChart,
@@ -36,13 +38,6 @@ export function ExpenseRatioDisplay({ analysis }: ExpenseRatioDisplayProps) {
   const expenseAnalysis = analyzeExpenseRatio(analysis);
   const projections = projectExpenseRatio(analysis, 5, revenueGrowth, expenseGrowth);
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-CA', {
-      style: 'currency',
-      currency: 'CAD',
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
 
   const formatPercent = (value: number) => {
     return `${value.toFixed(1)}%`;
@@ -83,7 +78,7 @@ export function ExpenseRatioDisplay({ analysis }: ExpenseRatioDisplayProps) {
             {formatPercent(expenseAnalysis.expense_ratio)}
           </div>
           <div className="text-xs text-gray-600">
-            {formatCurrency(expenseAnalysis.total_annual_expenses)}/yr
+            {formatCurrencyUtil(expenseAnalysis.total_annual_expenses)}/yr
           </div>
         </div>
 
@@ -108,10 +103,10 @@ export function ExpenseRatioDisplay({ analysis }: ExpenseRatioDisplayProps) {
             <TrendingDown className="w-5 h-5 text-green-600" />
           </div>
           <div className="text-3xl font-bold text-green-600 mb-1">
-            {formatCurrency(expenseAnalysis.total_potential_savings)}
+            {formatCurrencyUtil(expenseAnalysis.total_potential_savings)}
           </div>
           <div className="text-xs text-gray-600">
-            {formatCurrency(expenseAnalysis.total_potential_savings / 12)}/mo
+            {formatCurrencyUtil(expenseAnalysis.total_potential_savings / 12)}/mo
           </div>
         </div>
 
@@ -153,7 +148,7 @@ export function ExpenseRatioDisplay({ analysis }: ExpenseRatioDisplayProps) {
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(value: number) => formatCurrency(value)}
+                  formatter={(value: number) => formatCurrencyUtil(value)}
                   labelStyle={{ color: '#000' }}
                 />
               </PieChart>
@@ -180,7 +175,7 @@ export function ExpenseRatioDisplay({ analysis }: ExpenseRatioDisplayProps) {
                 <XAxis type="number" tick={{ fontSize: 11 }} tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`} />
                 <YAxis type="category" dataKey="category" tick={{ fontSize: 11 }} width={110} />
                 <Tooltip
-                  formatter={(value: number) => formatCurrency(value)}
+                  formatter={(value: number) => formatCurrencyUtil(value)}
                   labelStyle={{ color: '#000' }}
                 />
                 <Legend />
@@ -214,7 +209,7 @@ export function ExpenseRatioDisplay({ analysis }: ExpenseRatioDisplayProps) {
                 .map((item, index) => (
                   <tr key={index} className="border-b border-gray-200 hover:bg-gray-50">
                     <td className="py-3 px-2 font-medium">{item.category}</td>
-                    <td className="py-3 px-2 text-right">{formatCurrency(item.annual_amount)}</td>
+                    <td className="py-3 px-2 text-right">{formatCurrencyUtil(item.annual_amount)}</td>
                     <td className="py-3 px-2 text-right">{formatPercent(item.percent_of_total)}</td>
                     <td className="py-3 px-2 text-right">
                       <span className={item.market_benchmark_percent && item.percent_of_revenue > item.market_benchmark_percent * 1.2 ? 'text-red-600 font-semibold' : ''}>
@@ -234,7 +229,7 @@ export function ExpenseRatioDisplay({ analysis }: ExpenseRatioDisplayProps) {
                     <td className="py-3 px-2 text-right">
                       {item.potential_savings ? (
                         <span className="text-green-600 font-semibold">
-                          {formatCurrency(item.potential_savings)}
+                          {formatCurrencyUtil(item.potential_savings)}
                         </span>
                       ) : (
                         <span className="text-gray-400">-</span>
@@ -244,12 +239,12 @@ export function ExpenseRatioDisplay({ analysis }: ExpenseRatioDisplayProps) {
                 ))}
               <tr className="border-t-2 border-gray-300 font-bold">
                 <td className="py-3 px-2">TOTAL</td>
-                <td className="py-3 px-2 text-right">{formatCurrency(expenseAnalysis.total_annual_expenses)}</td>
+                <td className="py-3 px-2 text-right">{formatCurrencyUtil(expenseAnalysis.total_annual_expenses)}</td>
                 <td className="py-3 px-2 text-right">100%</td>
                 <td className="py-3 px-2 text-right">{formatPercent(expenseAnalysis.expense_ratio)}</td>
                 <td className="py-3 px-2 text-right text-purple-600">{formatPercent(expenseAnalysis.market_benchmark_ratio)}</td>
                 <td className="py-3 px-2 text-right">-</td>
-                <td className="py-3 px-2 text-right text-green-600">{formatCurrency(expenseAnalysis.total_potential_savings)}</td>
+                <td className="py-3 px-2 text-right text-green-600">{formatCurrencyUtil(expenseAnalysis.total_potential_savings)}</td>
               </tr>
             </tbody>
           </table>
@@ -298,7 +293,7 @@ export function ExpenseRatioDisplay({ analysis }: ExpenseRatioDisplayProps) {
               <Tooltip
                 formatter={(value: number, name: string) => {
                   if (name === 'Expense Ratio') return `${value.toFixed(1)}%`;
-                  return formatCurrency(value);
+                  return formatCurrencyUtil(value);
                 }}
                 labelFormatter={(value) => `Year ${value}`}
                 labelStyle={{ color: '#000' }}
@@ -342,7 +337,7 @@ export function ExpenseRatioDisplay({ analysis }: ExpenseRatioDisplayProps) {
                   </span>
                 </div>
                 <div className="text-2xl font-bold text-green-600 mb-1">
-                  {formatCurrency(item.potential_savings)}
+                  {formatCurrencyUtil(item.potential_savings)}
                 </div>
                 <div className="text-xs text-gray-600">
                   Reduce from {formatPercent(item.percent_of_revenue)} to ~{formatPercent(item.percent_of_revenue - ((item.potential_savings / expenseAnalysis.total_annual_revenue) * 100))}
@@ -394,8 +389,8 @@ export function ExpenseRatioDisplay({ analysis }: ExpenseRatioDisplayProps) {
           <div>
             <p className="text-gray-700 mb-2">
               <span className="font-semibold">Optimization Potential:</span> By implementing the recommendations above, you could save{' '}
-              <span className="font-bold text-green-600">{formatCurrency(expenseAnalysis.total_potential_savings)}</span> annually
-              ({formatCurrency(expenseAnalysis.total_potential_savings / 12)}/month).
+              <span className="font-bold text-green-600">{formatCurrencyUtil(expenseAnalysis.total_potential_savings)}</span> annually
+              ({formatCurrencyUtil(expenseAnalysis.total_potential_savings / 12)}/month).
             </p>
             <p className="text-gray-700">
               <span className="font-semibold">Optimized Ratio:</span> This would reduce your expense ratio to{' '}

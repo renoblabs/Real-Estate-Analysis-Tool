@@ -1,5 +1,7 @@
 'use client';
 
+import { formatCurrency as formatCurrencyUtil } from '@/lib/utils';
+
 import {
   RadarChart,
   Radar,
@@ -28,13 +30,6 @@ interface RiskDashboardProps {
 export function RiskDashboard({ inputs, analysis }: RiskDashboardProps) {
   const riskAnalysis = analyzeRisks(inputs, analysis);
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-CA', {
-      style: 'currency',
-      currency: 'CAD',
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
 
   // Risk level colors
   const getRiskColor = (level: RiskLevel) => {
@@ -330,10 +325,10 @@ export function RiskDashboard({ inputs, analysis }: RiskDashboardProps) {
                 <tr key={index} className="border-b border-gray-200 hover:bg-gray-50">
                   <td className="py-3 px-2 font-medium">{test.scenario}</td>
                   <td className={`py-3 px-2 text-right font-semibold ${test.monthly_cash_flow_impact < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                    {test.monthly_cash_flow_impact !== 0 ? formatCurrency(test.monthly_cash_flow_impact) : '-'}
+                    {test.monthly_cash_flow_impact !== 0 ? formatCurrencyUtil(test.monthly_cash_flow_impact) : '-'}
                   </td>
                   <td className={`py-3 px-2 text-right font-semibold ${test.annual_cash_flow_impact < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                    {test.annual_cash_flow_impact !== 0 ? formatCurrency(test.annual_cash_flow_impact) : '-'}
+                    {test.annual_cash_flow_impact !== 0 ? formatCurrencyUtil(test.annual_cash_flow_impact) : '-'}
                   </td>
                   <td className="py-3 px-2 text-sm text-gray-700">
                     {test.break_even_impact}

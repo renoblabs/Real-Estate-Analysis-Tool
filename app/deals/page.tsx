@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { createClient } from '@/lib/supabase/client';
 import { getUserDeals, deleteDeal } from '@/lib/database';
 import { toast } from 'sonner';
+import { withTimeout, formatCurrency } from '@/lib/utils';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import type { Deal, Province, PropertyType, DealStatus } from '@/types';
 
@@ -43,20 +44,34 @@ export default function DealsPage() {
   const loadDeals = async () => {
     try {
       const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
+
+      // Add timeout to auth check (10 seconds)
+      const { data: { user } } = await withTimeout(
+        supabase.auth.getUser(),
+        10000
+      );
 
       if (!user) {
         router.push('/login');
         return;
       }
 
-      const { data, error } = await getUserDeals(user.id);
+      // Add timeout to database query (15 seconds)
+      const { data, error } = await withTimeout(
+        getUserDeals(user.id),
+        15000
+      );
+
       if (error) throw error;
 
       setDeals(data || []);
     } catch (error: any) {
-      toast.error('Failed to load deals');
-      console.error(error);
+      const message = error.message?.includes('timed out')
+        ? 'Request timed out. Please check your connection and try again.'
+        : 'Failed to load deals. Please try again.';
+
+      toast.error(message);
+      console.error('Load deals error:', error);
     } finally {
       setLoading(false);
     }
@@ -162,14 +177,6 @@ export default function DealsPage() {
       case 'F': return 'bg-red-500 text-white';
       default: return 'bg-gray-500 text-white';
     }
-  };
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-CA', {
-      style: 'currency',
-      currency: 'CAD',
-      maximumFractionDigits: 0,
-    }).format(value);
   };
 
   if (loading) {
