@@ -16,6 +16,7 @@ interface EventData {
 
 /**
  * Track an analytics event
+ * Note: Failures are logged but don't throw - analytics shouldn't break the app
  */
 export async function trackEvent(
   eventType: AnalyticsEvent,
@@ -27,14 +28,34 @@ export async function trackEvent(
 
     if (!user) return;
 
-    await supabase.from('analytics_events').insert({
+    const { error } = await supabase.from('analytics_events').insert({
       user_id: user.id,
       event_type: eventType,
       event_data: eventData || {},
+      timestamp: new Date().toISOString(),
     });
-  } catch (error) {
-    // Silently fail - analytics shouldn't break the app
-    console.error('Analytics error:', error);
+
+    if (error) {
+      // Log error details for debugging
+      console.error('Analytics tracking failed:', {
+        event: eventType,
+        error: error.message,
+        code: error.code,
+      });
+
+      // TODO: In production, send to error monitoring service (Sentry, LogRocket, etc.)
+      // Example: Sentry.captureException(error, { extra: { eventType, eventData } });
+    }
+  } catch (error: any) {
+    // Network errors, auth failures, etc. - log but don't throw
+    console.error('Analytics error:', {
+      event: eventType,
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+    });
+
+    // TODO: In production, send to error monitoring service
+    // Example: Sentry.captureException(error, { extra: { eventType, eventData } });
   }
 }
 

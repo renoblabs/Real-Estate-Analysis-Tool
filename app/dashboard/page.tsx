@@ -8,6 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { createClient } from '@/lib/supabase/client';
 import { getUserDeals } from '@/lib/database';
+import { withTimeout } from '@/lib/utils';
+import { toast } from 'sonner';
 import type { Deal } from '@/types';
 
 export default function DashboardPage() {
@@ -23,7 +25,12 @@ export default function DashboardPage() {
   const loadData = async () => {
     try {
       const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
+
+      // Add timeout to auth check (10 seconds)
+      const { data: { user } } = await withTimeout(
+        supabase.auth.getUser(),
+        10000
+      );
 
       if (!user) {
         router.push('/login');
@@ -32,12 +39,24 @@ export default function DashboardPage() {
 
       setUser(user);
 
-      const { data: dealsData } = await getUserDeals(user.id);
+      // Add timeout to database query (15 seconds)
+      const { data: dealsData, error } = await withTimeout(
+        getUserDeals(user.id),
+        15000
+      );
+
+      if (error) throw error;
+
       if (dealsData) {
         setDeals(dealsData.slice(0, 5)); // Show last 5 deals
       }
-    } catch (error) {
-      console.error('Error loading dashboard:', error);
+    } catch (error: any) {
+      const message = error.message?.includes('timed out')
+        ? 'Request timed out. Please check your connection and try again.'
+        : 'Failed to load dashboard. Please try again.';
+
+      toast.error(message);
+      console.error('Dashboard load error:', error);
     } finally {
       setLoading(false);
     }
