@@ -109,13 +109,24 @@ See [SETUP.md](SETUP.md) for detailed instructions.
 
 ## 📚 Documentation
 
+### Developer Documentation
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - **NEW** How to contribute (coding standards, PR process)
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - **NEW** System architecture & design decisions
+- **[API.md](API.md)** - **NEW** Internal API reference for developers
+- **[PRODUCTION_FIXES.md](PRODUCTION_FIXES.md)** - Production readiness improvements (v2.3.3)
+
+### User Documentation
 - **[USER_GUIDE.md](USER_GUIDE.md)** - Complete user manual (300+ lines)
-- **[ADVANCED_ANALYSIS_FEATURES.md](ADVANCED_ANALYSIS_FEATURES.md)** - **NEW** Advanced analysis documentation
+- **[ADVANCED_ANALYSIS_FEATURES.md](ADVANCED_ANALYSIS_FEATURES.md)** - Advanced analysis documentation (7 modules)
 - **[SESSION_2_FEATURES.md](SESSION_2_FEATURES.md)** - Data visualization features summary
+
+### Deployment Documentation
 - **[SETUP.md](SETUP.md)** - Complete deployment instructions
-- **[FEATURES.md](FEATURES.md)** - Comprehensive feature list (20+ major features)
-- **[DEPLOYMENT_SUMMARY.md](DEPLOYMENT_SUMMARY.md)** - Initial MVP summary
 - **[DEPLOY_COOLIFY.md](DEPLOY_COOLIFY.md)** - Self-hosted deployment guide
+- **[DEPLOYMENT_SUMMARY.md](DEPLOYMENT_SUMMARY.md)** - Initial MVP summary
+
+### Feature Documentation
+- **[FEATURES.md](FEATURES.md)** - Comprehensive feature list (20+ major features)
 
 ---
 
@@ -296,4 +307,12 @@ Copyright © 2024 REI OPS™. All rights reserved.
 
 **Built with ❤️ for Canadian real estate investors**
 
-🚀 **Status**: Production Ready | v2.3.0 - **Complete Advanced Analysis Suite (7 modules: Sensitivity, IRR/NPV, Break-Even, Expense Optimizer, Risk Dashboard, Tax, Airbnb)!**
+🚀 **Status**: Production Ready | v2.3.3 - **Production Hardening Complete!**
+
+**Latest Updates (v2.3.3):**
+- ✅ All 5 critical production issues fixed (100%)
+- ✅ Component refactoring (73% code reduction in analyze page)
+- ✅ Error handling with retry logic & exponential backoff
+- ✅ Loading states & professional toast notifications
+- ✅ God function decomposition (Risk Analyzer: 8 functions, Break-Even: 9 functions)
+- ✅ Comprehensive documentation (Contributing, Architecture, API guides)
