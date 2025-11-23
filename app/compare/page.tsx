@@ -3,9 +3,44 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import type { Deal } from '@/types';
+import type { Deal, PropertyInputs } from '@/types';
 import { analyzeDeal } from '@/lib/deal-analyzer';
 import { ChevronDown, TrendingUp, TrendingDown, Minus, ArrowLeft } from 'lucide-react';
+
+// Helper function to convert Deal to PropertyInputs
+function dealToPropertyInputs(deal: Deal): PropertyInputs {
+  return {
+    address: deal.address,
+    city: deal.city,
+    province: deal.province,
+    postal_code: deal.postal_code,
+    property_type: deal.property_type,
+    bedrooms: deal.bedrooms,
+    bathrooms: deal.bathrooms,
+    square_feet: deal.square_feet,
+    year_built: deal.year_built,
+    lot_size: deal.lot_size,
+    purchase_price: deal.purchase_price,
+    down_payment_percent: deal.down_payment_percent,
+    down_payment_amount: deal.down_payment_amount,
+    interest_rate: deal.interest_rate,
+    amortization_years: deal.amortization_years,
+    strategy: deal.strategy,
+    property_condition: deal.property_condition,
+    renovation_cost: deal.renovation_cost,
+    after_repair_value: deal.after_repair_value,
+    monthly_rent: deal.monthly_rent,
+    other_income: deal.other_income,
+    vacancy_rate: deal.vacancy_rate,
+    property_tax_annual: deal.property_tax_annual,
+    insurance_annual: deal.insurance_annual,
+    property_management_percent: deal.property_management_percent,
+    maintenance_percent: deal.maintenance_percent,
+    utilities_monthly: deal.utilities_monthly,
+    hoa_condo_fees_monthly: deal.hoa_fees_monthly,
+    other_expenses_monthly: deal.other_expenses_monthly,
+  };
+}
 
 export default function ComparePage() {
   const [deals, setDeals] = useState<Deal[]>([]);
@@ -63,7 +98,8 @@ export default function ComparePage() {
 
   // Comparison metrics
   const comparisonMetrics = comparisonDeals.map((deal) => {
-    const analysis = analyzeDeal(deal.property_inputs);
+    const propertyInputs = dealToPropertyInputs(deal);
+    const analysis = analyzeDeal(propertyInputs);
     return {
       deal,
       analysis,
@@ -136,13 +172,13 @@ export default function ComparePage() {
                   }`}
                 >
                   <p className="font-semibold text-sm">
-                    {deal.property_inputs.address}
+                    {deal.address}
                   </p>
                   <p className="text-xs text-gray-600 mt-1">
-                    {deal.property_inputs.city}, {deal.property_inputs.province}
+                    {deal.city}, {deal.province}
                   </p>
                   <p className="text-xs text-gray-500 mt-2">
-                    ${deal.property_inputs.purchase_price.toLocaleString()}
+                    ${deal.purchase_price.toLocaleString()}
                   </p>
                 </button>
               );
@@ -168,7 +204,7 @@ export default function ComparePage() {
                         <div className="flex flex-col">
                           <span className="text-blue-600">Deal {idx + 1}</span>
                           <span className="font-normal text-xs text-gray-600 mt-1">
-                            {item.deal.property_inputs.address}
+                            {item.deal.address}
                           </span>
                         </div>
                       </th>
@@ -338,7 +374,7 @@ export default function ComparePage() {
                     </td>
                     {comparisonMetrics.map((item) => (
                       <td key={item.deal.id} className="px-6 py-4 text-sm text-gray-700">
-                        ${item.analysis.acquisition.down_payment.toLocaleString()} ({item.analysis.acquisition.down_payment_percent}%)
+                        ${item.analysis.acquisition.down_payment.toLocaleString()} ({item.deal.down_payment_percent}%)
                       </td>
                     ))}
                   </tr>
@@ -347,14 +383,14 @@ export default function ComparePage() {
                       Total Cash Needed
                     </td>
                     {comparisonMetrics.map((item, idx) => {
-                      const value = item.analysis.acquisition.total_cash_needed;
+                      const value = item.analysis.acquisition.total_acquisition_cost;
                       return (
                         <td key={item.deal.id} className="px-6 py-4 text-sm text-gray-700">
                           ${value.toLocaleString()}
                           {idx > 0 && (
                             <ComparisonIndicator
                               value1={value}
-                              value2={comparisonMetrics[0].analysis.acquisition.total_cash_needed}
+                              value2={comparisonMetrics[0].analysis.acquisition.total_acquisition_cost}
                               higherIsBetter={false}
                             />
                           )}
@@ -368,7 +404,7 @@ export default function ComparePage() {
                     </td>
                     {comparisonMetrics.map((item) => (
                       <td key={item.deal.id} className="px-6 py-4 text-sm text-gray-700">
-                        ${item.analysis.revenue.monthly_rent.toLocaleString()}
+                        ${item.analysis.revenue.gross_monthly_rent.toLocaleString()}
                       </td>
                     ))}
                   </tr>

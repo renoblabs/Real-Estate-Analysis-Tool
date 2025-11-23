@@ -398,7 +398,7 @@ export function analyzeExpenseOptimization(analysis: DealAnalysis): ExpenseOptim
         'Negotiate fees with current manager',
         'Self-manage if you have time',
         'Compare multiple PM companies',
-        'Ensure you're getting value for cost',
+        'Ensure you\'re getting value for cost',
       ],
     },
     {
