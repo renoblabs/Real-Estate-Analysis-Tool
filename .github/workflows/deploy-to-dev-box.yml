@@ -1,0 +1,71 @@
+name: Deploy to Dev Box
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: npm run lint
+
+      - name: Run type check
+        run: npm run type-check
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build application
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      - name: Deploy to Dev Box via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.DEV_BOX_HOST }}
+          username: ${{ secrets.DEV_BOX_USER }}
+          key: ${{ secrets.DEV_BOX_SSH_KEY }}
+          port: ${{ secrets.DEV_BOX_PORT || 22 }}
+          script: |
+            cd ~/rei-ops-app
+            git pull origin main
+            docker-compose -f docker-compose.dev.yml down
+            docker-compose -f docker-compose.dev.yml up -d --build
+            docker-compose -f docker-compose.dev.yml logs -f --tail=50
+
+      - name: Health check
+        run: |
+          sleep 10
+          curl -f http://${{ secrets.DEV_BOX_HOST }}:3000/api/health || exit 1
+
+      - name: Notify deployment success
+        if: success()
+        run: |
+          echo "✅ Deployment to dev box successful!"
+          echo "🚀 App running at: http://${{ secrets.DEV_BOX_HOST }}:3000"
+
+      - name: Notify deployment failure
+        if: failure()
+        run: |
+          echo "❌ Deployment to dev box failed!"
+          echo "Check logs at: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
