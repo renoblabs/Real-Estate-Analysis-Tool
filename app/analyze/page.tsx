@@ -8,23 +8,30 @@ import { createClient } from '@/lib/supabase/client';
 import { analyzeDeal } from '@/lib/deal-analyzer';
 import { saveDeal } from '@/lib/database';
 import { toast } from 'sonner';
-import type { PropertyInputs, DealAnalysis } from '@/types';
+import type { PropertyInputs, DealAnalysis, MultiFamilyInputs, MultiFamilyAnalysis, AnalysisType } from '@/types';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { PropertyDetailsForm } from '@/components/forms/PropertyDetailsForm';
 import { PurchaseFinancingForm } from '@/components/forms/PurchaseFinancingForm';
 import { RevenueForm } from '@/components/forms/RevenueForm';
 import { ExpensesForm } from '@/components/forms/ExpensesForm';
+import { MultiFamilyDevelopmentForm } from '@/components/forms/MultiFamilyDevelopmentForm';
 import { AnalysisResultsCard } from '@/components/analysis/AnalysisResultsCard';
+import { MultiFamilyResultsCard } from '@/components/analysis/MultiFamilyResultsCard';
+import DealSourcingDashboard from '@/components/analysis/DealSourcingDashboard';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function AnalyzePage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
-  const [analysis, setAnalysis] = useState<DealAnalysis | null>(null);
+  const [analysis, setAnalysis] = useState<DealAnalysis | MultiFamilyAnalysis | null>(null);
+  const [analysisType, setAnalysisType] = useState<AnalysisType>('rental');
 
-  const [formData, setFormData] = useState<Partial<PropertyInputs>>({
+  const [formData, setFormData] = useState<Partial<PropertyInputs | MultiFamilyInputs>>({
     address: '',
     city: '',
     province: 'ON',
@@ -95,9 +102,23 @@ export default function AnalyzePage() {
       return;
     }
 
+    // Validate multi-family specific requirements
+    if (analysisType === 'multifamily_development') {
+      const mfData = formData as Partial<MultiFamilyInputs>;
+      if (!mfData.target_units || mfData.target_units.length === 0) {
+        toast.error('Please add at least one unit configuration');
+        return;
+      }
+    }
+
     setAnalyzing(true);
     try {
-      const result = analyzeDeal(formData as PropertyInputs);
+      const analysisData = {
+        ...formData,
+        analysis_type: analysisType
+      } as PropertyInputs | MultiFamilyInputs;
+
+      const result = await analyzeDeal(analysisData);
       setAnalysis(result);
 
       // Save to database
@@ -138,28 +159,88 @@ export default function AnalyzePage() {
           </div>
 
           <div className="grid gap-8">
-            <PropertyDetailsForm formData={formData} onInputChange={handleInputChange} />
-            <PurchaseFinancingForm formData={formData} onInputChange={handleInputChange} />
-            <RevenueForm formData={formData} onInputChange={handleInputChange} />
-            <ExpensesForm formData={formData} onInputChange={handleInputChange} />
+            {/* Analysis Type Selection */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Analysis Type</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="analysis_type">Select Analysis Type</Label>
+                    <Select
+                      value={analysisType}
+                      onValueChange={(value: AnalysisType) => {
+                        setAnalysisType(value);
+                        setAnalysis(null); // Clear previous analysis
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select analysis type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="rental">Rental Property Analysis</SelectItem>
+                        <SelectItem value="multifamily_development">Multi-Family Development</SelectItem>
+                        <SelectItem value="deal_sourcing">Deal Sourcing & Investment Engine</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-            {/* Analyze Button */}
-            <div className="flex gap-4">
-              <Button
-                onClick={handleAnalyze}
-                disabled={analyzing}
-                size="lg"
-                className="flex-1"
-              >
-                {analyzing ? 'Analyzing...' : 'Analyze Deal'}
-              </Button>
-              <Link href="/dashboard">
-                <Button variant="outline" size="lg">Cancel</Button>
-              </Link>
-            </div>
+            {/* Conditional Content Based on Analysis Type */}
+            {analysisType === 'deal_sourcing' ? (
+              <DealSourcingDashboard 
+                onAnalyzeProperty={(criteria) => {
+                  // Handle property analysis with criteria
+                  console.log('Analyzing property with criteria:', criteria);
+                }}
+              />
+            ) : (
+              <>
+                {/* Common Property Details */}
+                <PropertyDetailsForm formData={formData} onInputChange={handleInputChange} />
 
-            {/* Analysis Results */}
-            {analysis && <AnalysisResultsCard analysis={analysis} />}
+                {/* Conditional Forms Based on Analysis Type */}
+                {analysisType === 'rental' ? (
+                  <>
+                    <PurchaseFinancingForm formData={formData} onInputChange={handleInputChange} />
+                    <RevenueForm formData={formData} onInputChange={handleInputChange} />
+                    <ExpensesForm formData={formData} onInputChange={handleInputChange} />
+                  </>
+                ) : (
+                  <MultiFamilyDevelopmentForm 
+                    formData={formData as Partial<MultiFamilyInputs>} 
+                    onChange={(data) => setFormData(data)} 
+                  />
+                )}
+
+                {/* Analyze Button */}
+                <div className="flex gap-4">
+                  <Button
+                    onClick={handleAnalyze}
+                    disabled={analyzing}
+                    size="lg"
+                    className="flex-1"
+                  >
+                    {analyzing ? 'Analyzing...' : `Analyze ${analysisType === 'rental' ? 'Rental Property' : 'Development'}`}
+                  </Button>
+                  <Link href="/dashboard">
+                    <Button variant="outline" size="lg">Cancel</Button>
+                  </Link>
+                </div>
+
+                {/* Analysis Results */}
+                {analysis && (
+                  analysisType === 'rental' ? (
+                    <AnalysisResultsCard analysis={analysis as DealAnalysis} />
+                  ) : (
+                    <MultiFamilyResultsCard analysis={analysis as MultiFamilyAnalysis} />
+                  )
+                )}
+              </>
+            )}
           </div>
         </div>
       </main>
