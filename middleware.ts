@@ -6,6 +6,14 @@ export async function middleware(request: NextRequest) {
     request,
   });
 
+  // Check if we're in demo mode
+  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
+  
+  if (isDemoMode) {
+    // In demo mode, skip all auth checks
+    return supabaseResponse;
+  }
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,

@@ -1,6 +1,6 @@
 // REI OPS™ - Break-Even Analysis
 
-import type { DealAnalysis } from '@/types';
+import type { DealAnalysis, PropertyInputs } from '@/types';
 
 export interface BreakEvenAnalysis {
   // Cash Flow Break-Even
@@ -61,13 +61,14 @@ function calculateRentBreakEven(
  */
 function calculatePurchasePriceBreakEven(
   monthly_shortfall: number,
-  analysis: DealAnalysis
+  analysis: DealAnalysis,
+  inputs: PropertyInputs
 ) {
   // Simplified: reduce price to eliminate cash flow gap
   // Assumes 20% down, same financing terms
-  const down_payment_ratio = analysis.acquisition.down_payment_percent / 100;
-  const monthly_rate = analysis.financing.interest_rate / 100 / 12;
-  const num_payments = analysis.financing.amortization_years * 12;
+  const down_payment_ratio = analysis.acquisition.down_payment / analysis.acquisition.purchase_price;
+  const monthly_rate = inputs.interest_rate / 100 / 12;
+  const num_payments = inputs.amortization_years * 12;
   const monthly_factor = (monthly_rate * Math.pow(1 + monthly_rate, num_payments)) /
                         (Math.pow(1 + monthly_rate, num_payments) - 1);
 
@@ -91,24 +92,24 @@ function calculatePurchasePriceBreakEven(
 function calculateOccupancyBreakEven(
   monthly_shortfall: number,
   is_currently_cash_flow_positive: boolean,
-  analysis: DealAnalysis
+  analysis: DealAnalysis,
+  inputs: PropertyInputs
 ) {
-  const current_vacancy_cost = analysis.expenses.vacancy_cost;
-  const monthly_vacancy_cost = current_vacancy_cost / 12;
+  const monthly_vacancy_cost = analysis.revenue.vacancy_loss_monthly;
 
   // What's the max vacancy we can afford?
   let max_affordable_vacancy_percent = 0;
   if (!is_currently_cash_flow_positive) {
     // Currently negative, need to reduce vacancy
     max_affordable_vacancy_percent = Math.max(0,
-      ((analysis.revenue.monthly_rent * (analysis.inputs?.vacancy_rate || 5) / 100) - monthly_shortfall) /
-      analysis.revenue.monthly_rent * 100
+      ((analysis.revenue.gross_monthly_rent * (inputs.vacancy_rate || 5) / 100) - monthly_shortfall) /
+      analysis.revenue.gross_monthly_rent * 100
     );
   } else {
     // Currently positive, calculate max we could afford
     max_affordable_vacancy_percent = Math.min(100,
-      ((analysis.revenue.monthly_rent * (analysis.inputs?.vacancy_rate || 5) / 100) + analysis.cash_flow.monthly_net) /
-      analysis.revenue.monthly_rent * 100
+      ((analysis.revenue.gross_monthly_rent * (inputs.vacancy_rate || 5) / 100) + analysis.cash_flow.monthly_net) /
+      analysis.revenue.gross_monthly_rent * 100
     );
   }
 
@@ -116,7 +117,7 @@ function calculateOccupancyBreakEven(
 
   return {
     break_even_occupancy,
-    current_vacancy_cost,
+    current_vacancy_cost: monthly_vacancy_cost * 12,
     max_affordable_vacancy_percent,
   };
 }
@@ -128,7 +129,7 @@ function calculateExpenseBreakEven(
   monthly_shortfall: number,
   analysis: DealAnalysis
 ) {
-  const current_monthly_expenses = analysis.expenses.total_annual_expenses / 12;
+  const current_monthly_expenses = analysis.expenses.annual.total / 12;
   const max_affordable_expenses = current_monthly_expenses - monthly_shortfall;
   const expense_reduction_needed = current_monthly_expenses - max_affordable_expenses;
   const expense_reduction_percent = (expense_reduction_needed / current_monthly_expenses) * 100;
@@ -146,22 +147,23 @@ function calculateExpenseBreakEven(
 function calculateInterestRateSensitivity(
   is_currently_cash_flow_positive: boolean,
   monthly_shortfall: number,
-  analysis: DealAnalysis
+  analysis: DealAnalysis,
+  inputs: PropertyInputs
 ) {
   // Calculate max interest rate that still gives positive cash flow
-  let max_affordable_interest_rate = analysis.financing.interest_rate;
+  let max_affordable_interest_rate = inputs.interest_rate;
 
   if (!is_currently_cash_flow_positive) {
     // Would need lower rate
     const rate_reduction_needed = (monthly_shortfall / analysis.financing.total_mortgage_with_insurance) * 12 * 100;
-    max_affordable_interest_rate = Math.max(0, analysis.financing.interest_rate - rate_reduction_needed);
+    max_affordable_interest_rate = Math.max(0, inputs.interest_rate - rate_reduction_needed);
   } else {
     // Calculate how much higher rate we could afford
     const rate_cushion = (analysis.cash_flow.monthly_net / analysis.financing.total_mortgage_with_insurance) * 12 * 100;
-    max_affordable_interest_rate = analysis.financing.interest_rate + rate_cushion;
+    max_affordable_interest_rate = inputs.interest_rate + rate_cushion;
   }
 
-  const interest_rate_cushion = max_affordable_interest_rate - analysis.financing.interest_rate;
+  const interest_rate_cushion = max_affordable_interest_rate - inputs.interest_rate;
 
   return {
     max_affordable_interest_rate,
@@ -277,20 +279,20 @@ function determineQuickestPath(
 /**
  * Calculate comprehensive break-even analysis (Main orchestrator)
  */
-export function calculateBreakEven(analysis: DealAnalysis): BreakEvenAnalysis {
+export function calculateBreakEven(analysis: DealAnalysis, inputs: PropertyInputs): BreakEvenAnalysis {
   const monthly_shortfall = analysis.cash_flow.monthly_net < 0
     ? Math.abs(analysis.cash_flow.monthly_net)
     : 0;
 
   const is_currently_cash_flow_positive = analysis.cash_flow.monthly_net >= 0;
-  const current_monthly_rent = analysis.revenue.monthly_rent;
+  const current_monthly_rent = analysis.revenue.gross_monthly_rent;
 
   // Calculate all break-even scenarios
   const rentBreakEven = calculateRentBreakEven(current_monthly_rent, monthly_shortfall);
-  const priceBreakEven = calculatePurchasePriceBreakEven(monthly_shortfall, analysis);
-  const occupancyBreakEven = calculateOccupancyBreakEven(monthly_shortfall, is_currently_cash_flow_positive, analysis);
+  const priceBreakEven = calculatePurchasePriceBreakEven(monthly_shortfall, analysis, inputs);
+  const occupancyBreakEven = calculateOccupancyBreakEven(monthly_shortfall, is_currently_cash_flow_positive, analysis, inputs);
   const expenseBreakEven = calculateExpenseBreakEven(monthly_shortfall, analysis);
-  const interestRate = calculateInterestRateSensitivity(is_currently_cash_flow_positive, monthly_shortfall, analysis);
+  const interestRate = calculateInterestRateSensitivity(is_currently_cash_flow_positive, monthly_shortfall, analysis, inputs);
   const timeline = calculateTimelineToPositive(is_currently_cash_flow_positive, current_monthly_rent, analysis);
 
   // Determine primary issue and quickest path
@@ -343,13 +345,13 @@ export interface ExpenseOptimization {
 }
 
 export function analyzeExpenseOptimization(analysis: DealAnalysis): ExpenseOptimization[] {
-  const total_revenue = analysis.revenue.annual_rent;
+  const total_revenue = analysis.revenue.annual_gross_income;
 
   const expenses: ExpenseOptimization[] = [
     {
       category: 'Property Tax',
-      current_annual: analysis.expenses.annual_property_tax,
-      current_percent_of_revenue: (analysis.expenses.annual_property_tax / total_revenue) * 100,
+      current_annual: analysis.expenses.annual.property_tax,
+      current_percent_of_revenue: (analysis.expenses.annual.property_tax / total_revenue) * 100,
       market_benchmark_percent: 10, // Typical 8-12%
       potential_savings: 0,
       optimization_difficulty: 'Hard',
@@ -361,8 +363,8 @@ export function analyzeExpenseOptimization(analysis: DealAnalysis): ExpenseOptim
     },
     {
       category: 'Insurance',
-      current_annual: analysis.expenses.annual_insurance,
-      current_percent_of_revenue: (analysis.expenses.annual_insurance / total_revenue) * 100,
+      current_annual: analysis.expenses.annual.insurance,
+      current_percent_of_revenue: (analysis.expenses.annual.insurance / total_revenue) * 100,
       market_benchmark_percent: 3, // Typical 2-4%
       potential_savings: 0,
       optimization_difficulty: 'Easy',
@@ -375,8 +377,8 @@ export function analyzeExpenseOptimization(analysis: DealAnalysis): ExpenseOptim
     },
     {
       category: 'Maintenance',
-      current_annual: analysis.expenses.annual_maintenance,
-      current_percent_of_revenue: (analysis.expenses.annual_maintenance / total_revenue) * 100,
+      current_annual: analysis.expenses.annual.maintenance,
+      current_percent_of_revenue: (analysis.expenses.annual.maintenance / total_revenue) * 100,
       market_benchmark_percent: 10, // 1% of property value or 10% of revenue
       potential_savings: 0,
       optimization_difficulty: 'Medium',
@@ -389,8 +391,8 @@ export function analyzeExpenseOptimization(analysis: DealAnalysis): ExpenseOptim
     },
     {
       category: 'Property Management',
-      current_annual: analysis.expenses.annual_property_management,
-      current_percent_of_revenue: (analysis.expenses.annual_property_management / total_revenue) * 100,
+      current_annual: analysis.expenses.annual.property_management,
+      current_percent_of_revenue: (analysis.expenses.annual.property_management / total_revenue) * 100,
       market_benchmark_percent: 8, // Typical 8-10%
       potential_savings: 0,
       optimization_difficulty: 'Medium',
@@ -403,8 +405,8 @@ export function analyzeExpenseOptimization(analysis: DealAnalysis): ExpenseOptim
     },
     {
       category: 'Vacancy',
-      current_annual: analysis.expenses.vacancy_cost,
-      current_percent_of_revenue: ((analysis.inputs?.vacancy_rate || 5)) || 5,
+      current_annual: analysis.revenue.vacancy_loss_monthly * 12,
+      current_percent_of_revenue: (analysis.revenue.vacancy_loss_monthly * 12 / total_revenue) * 100,
       market_benchmark_percent: 5, // Typical 5-8%
       potential_savings: 0,
       optimization_difficulty: 'Easy',

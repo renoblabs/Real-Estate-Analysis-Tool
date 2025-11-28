@@ -297,7 +297,7 @@ export function AdvancedMetricsDisplay({ inputs, analysis }: AdvancedMetricsDisp
             <div className="space-y-1 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-600">Total Cash Needed:</span>
-                <span className="font-medium">${analysis.acquisition.total_cash_needed.toLocaleString()}</span>
+                <span className="font-medium">${(analysis.acquisition.down_payment + analysis.acquisition.total_acquisition_cost - analysis.acquisition.purchase_price).toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Hold Period:</span>
@@ -311,7 +311,7 @@ export function AdvancedMetricsDisplay({ inputs, analysis }: AdvancedMetricsDisp
               <div className="flex justify-between">
                 <span className="text-gray-600">Total Cash Returned:</span>
                 <span className="font-medium text-green-600">
-                  ${(analysis.acquisition.total_cash_needed * metrics.equity_multiple).toLocaleString()}
+                  ${((analysis.acquisition.down_payment + analysis.acquisition.total_acquisition_cost - analysis.acquisition.purchase_price) * metrics.equity_multiple).toLocaleString()}
                 </span>
               </div>
               <div className="flex justify-between">

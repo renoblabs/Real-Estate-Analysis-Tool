@@ -90,7 +90,7 @@ export default function AdvancedAnalysisPage() {
 
       setInputs(propertyInputs);
 
-      const analysisResult = analyzeDeal(propertyInputs);
+      const analysisResult = await analyzeDeal(propertyInputs);
       setAnalysis(analysisResult);
     } catch (error: any) {
       toast.error('Failed to load deal');
@@ -256,7 +256,7 @@ export default function AdvancedAnalysisPage() {
                 insights on rent adjustments, price negotiations, expense reductions, and timeline projections.
               </p>
             </div>
-            <BreakEvenDisplay analysis={analysis} />
+            <BreakEvenDisplay analysis={analysis} inputs={inputs} />
           </div>
         )}
 
@@ -301,7 +301,7 @@ export default function AdvancedAnalysisPage() {
                 deductions, CCA depreciation, and capital gains. See your real after-tax returns.
               </p>
             </div>
-            <TaxImpactDisplay analysis={analysis} />
+            <TaxImpactDisplay analysis={analysis} inputs={inputs} />
           </div>
         )}
 

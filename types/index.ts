@@ -2,11 +2,17 @@
 
 export type Province = 'ON' | 'BC' | 'AB' | 'NS' | 'QC';
 export type PropertyType = 'single_family' | 'duplex' | 'triplex' | 'fourplex' | 'multi_unit_5plus';
-export type Strategy = 'brrrr' | 'buy_hold' | 'fix_flip';
+export type Strategy = 'brrrr' | 'buy_hold' | 'fix_flip' | 'multifamily_development';
 export type PropertyCondition = 'move_in_ready' | 'cosmetic' | 'moderate_reno' | 'heavy_reno' | 'gut_job';
 export type InvestorType = 'Beginner' | 'Intermediate' | 'Advanced' | 'Professional';
 export type DealStatus = 'analyzing' | 'pursuing' | 'under_contract' | 'closed' | 'passed';
 export type DealGrade = 'A' | 'B' | 'C' | 'D' | 'F';
+
+// Multi-Family Development Types
+export type DevelopmentType = 'raw_land' | 'existing_structure' | 'new_construction';
+export type RenovationScope = 'cosmetic' | 'moderate' | 'heavy' | 'gut_renovation' | 'new_build';
+export type UnitType = 'studio' | '1br' | '2br' | '3br' | '4br';
+export type AnalysisType = 'rental' | 'multifamily_development' | 'deal_sourcing' | 'small_multifamily';
 
 export interface PropertyUnit {
   unit_number: string;
@@ -300,4 +306,304 @@ export interface Deal {
   status: DealStatus;
   notes?: string;
   is_favorite: boolean;
+}
+
+// Multi-Family Development Interfaces
+export interface MultiFamilyUnit {
+  unit_type: UnitType;
+  square_feet: number;
+  target_rent: number;
+  construction_cost?: number;
+  bedrooms: number;
+  bathrooms: number;
+}
+
+export interface MarketComparable {
+  address: string;
+  unit_type: UnitType;
+  rent: number;
+  square_feet: number;
+  distance_km: number;
+  age_years: number;
+  bedrooms: number;
+  bathrooms: number;
+}
+
+export interface MultiFamilyInputs extends PropertyInputs {
+  // Analysis Type
+  analysis_type: AnalysisType;
+  
+  // Development Type
+  development_type: DevelopmentType;
+  
+  // Land/Site Analysis
+  land_cost?: number;
+  site_preparation_cost?: number;
+  zoning_compliance_cost?: number;
+  
+  // Construction/Renovation
+  construction_cost_per_sqft?: number;
+  renovation_scope: RenovationScope;
+  permit_costs?: number;
+  architect_engineer_fees?: number;
+  
+  // Unit Configuration
+  target_units: MultiFamilyUnit[];
+  
+  // Market Analysis
+  comparable_rents: MarketComparable[];
+  market_vacancy_rate?: number;
+  rent_growth_projection?: number;
+}
+
+export interface ConstructionCosts {
+  base_construction: number;
+  site_preparation: number;
+  permits_approvals: number;
+  utilities_connections: number;
+  landscaping: number;
+  total_hard_costs: number;
+}
+
+export interface SoftCosts {
+  architect_engineer: number;
+  legal_fees: number;
+  development_management: number;
+  financing_costs: number;
+  marketing_leasing: number;
+  contingency: number;
+  total_soft_costs: number;
+}
+
+export interface DevelopmentAnalysis {
+  construction_costs: ConstructionCosts;
+  soft_costs: SoftCosts;
+  total_development_cost: number;
+  cost_per_unit: number;
+  cost_per_sqft: number;
+  timeline_months: number;
+  financing_needs: DevelopmentFinancing;
+}
+
+export interface DevelopmentFinancing {
+  total_project_cost: number;
+  equity_required: number;
+  construction_loan_amount: number;
+  permanent_financing: number;
+  interest_during_construction: number;
+}
+
+export interface RentAnalysis {
+  market_rent_range: {
+    low: number;
+    average: number;
+    high: number;
+  };
+  target_rent: number;
+  rent_premium_discount: number;
+  rent_per_sqft: number;
+  market_rent_per_sqft: number;
+}
+
+export interface MarketAnalysis {
+  rent_analysis_by_unit: Record<UnitType, RentAnalysis>;
+  overall_market_score: number;
+  demand_indicators: {
+    vacancy_rate: number;
+    rent_growth_trend: number;
+    competition_level: 'low' | 'moderate' | 'high';
+  };
+  location_factors: {
+    transit_score: number;
+    amenity_score: number;
+    school_district_rating: number;
+  };
+}
+
+export interface ProfitabilityGap {
+  current_value: number;
+  target_value: number;
+  gap_amount: number;
+  gap_percentage: number;
+}
+
+export interface ProfitabilityGaps {
+  cash_flow_gap: ProfitabilityGap;
+  roi_gap: ProfitabilityGap;
+  rent_gap: ProfitabilityGap;
+  cost_gap: ProfitabilityGap;
+  recommendations: string[];
+}
+
+export interface ConstructionTimeline {
+  planning_phase_months: number;
+  construction_phase_months: number;
+  leasing_phase_months: number;
+  total_timeline_months: number;
+  key_milestones: {
+    permits_approved: number;
+    construction_start: number;
+    construction_complete: number;
+    first_tenant: number;
+    stabilized_occupancy: number;
+  };
+}
+
+export interface DevelopmentRiskAssessment {
+  construction_risk: {
+    score: number;
+    factors: string[];
+  };
+  market_risk: {
+    score: number;
+    factors: string[];
+  };
+  financing_risk: {
+    score: number;
+    factors: string[];
+  };
+  overall_risk_score: number;
+  risk_level: 'low' | 'moderate' | 'high' | 'very_high';
+}
+
+export interface MultiFamilyAnalysis extends DealAnalysis {
+  development_analysis: DevelopmentAnalysis;
+  market_analysis: MarketAnalysis;
+  profitability_gaps: ProfitabilityGaps;
+  construction_timeline: ConstructionTimeline;
+  risk_assessment: DevelopmentRiskAssessment;
+}
+
+// Small Multifamily (1-4 Units) Analysis Types
+export interface SmallMultifamilyInputs extends PropertyInputs {
+  analysis_type: 'small_multifamily';
+  
+  // Property Configuration
+  target_unit_count: 1 | 2 | 3 | 4;
+  current_unit_count?: number; // For existing structures
+  
+  // Development Approach
+  development_approach: 'raw_land' | 'existing_conversion' | 'existing_addition';
+  
+  // Raw Land Specific
+  land_acquisition_cost?: number;
+  site_preparation_cost?: number;
+  utility_connections_cost?: number;
+  
+  // Existing Structure Specific
+  existing_structure_value?: number;
+  conversion_feasibility_score?: number; // 1-10
+  
+  // Construction/Renovation Costs
+  construction_cost_per_unit?: number;
+  renovation_cost_per_unit?: number;
+  permit_and_approval_costs?: number;
+  
+  // Unit Details
+  planned_units: SmallMultifamilyUnit[];
+  
+  // Market Research
+  local_rent_comparables: RentComparable[];
+  market_vacancy_rate?: number;
+  
+  // Timeline
+  estimated_completion_months?: number;
+}
+
+export interface SmallMultifamilyUnit {
+  unit_number: string;
+  unit_type: UnitType;
+  square_feet: number;
+  bedrooms: number;
+  bathrooms: number;
+  target_monthly_rent: number;
+  construction_cost?: number;
+  renovation_cost?: number;
+}
+
+export interface RentComparable {
+  address: string;
+  unit_type: UnitType;
+  monthly_rent: number;
+  square_feet: number;
+  bedrooms: number;
+  bathrooms: number;
+  distance_km: number;
+  property_age_years: number;
+  last_updated: string;
+}
+
+export interface SmallMultifamilyAnalysis extends DealAnalysis {
+  // Development Cost Breakdown
+  development_costs: {
+    land_acquisition: number;
+    site_preparation: number;
+    construction_per_unit: number;
+    renovation_per_unit: number;
+    permits_and_approvals: number;
+    utility_connections: number;
+    contingency: number;
+    total_development_cost: number;
+  };
+  
+  // Unit-by-Unit Analysis
+  unit_analysis: {
+    unit_number: string;
+    projected_rent: number;
+    cost_to_create: number;
+    monthly_net_income: number;
+    roi_per_unit: number;
+  }[];
+  
+  // Market Analysis
+  market_analysis: {
+    average_rent_per_unit_type: Record<UnitType, number>;
+    market_vacancy_rate: number;
+    rent_growth_projection: number;
+    comparable_properties_count: number;
+    market_strength_score: number; // 1-10
+  };
+  
+  // Profitability Analysis
+  profitability: {
+    total_investment: number;
+    total_annual_income: number;
+    total_annual_expenses: number;
+    net_annual_income: number;
+    cash_on_cash_return: number;
+    cap_rate: number;
+    break_even_occupancy: number;
+    payback_period_years: number;
+  };
+  
+  // Risk Assessment
+  risk_factors: {
+    construction_risk: string[];
+    market_risk: string[];
+    financial_risk: string[];
+    regulatory_risk: string[];
+    overall_risk_score: number; // 1-10
+  };
+  
+  // Scenarios
+  scenarios: {
+    conservative: ScenarioAnalysis;
+    realistic: ScenarioAnalysis;
+    optimistic: ScenarioAnalysis;
+  };
+}
+
+export interface ScenarioAnalysis {
+  scenario_name: string;
+  assumptions: {
+    rent_achievement: number; // % of target rent achieved
+    vacancy_rate: number;
+    cost_overrun: number; // % over budget
+    timeline_delay_months: number;
+  };
+  projected_returns: {
+    annual_cash_flow: number;
+    cash_on_cash_return: number;
+    total_roi_5_year: number;
+  };
 }

@@ -16,7 +16,7 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from 'recharts';
-import type { DealAnalysis } from '@/types';
+import type { DealAnalysis, PropertyInputs } from '@/types';
 import {
   calculateBreakEven,
   type BreakEvenAnalysis,
@@ -25,10 +25,11 @@ import { AlertCircle, TrendingUp, DollarSign, Calendar, Lightbulb } from 'lucide
 
 interface BreakEvenDisplayProps {
   analysis: DealAnalysis;
+  inputs: PropertyInputs;
 }
 
-export function BreakEvenDisplay({ analysis }: BreakEvenDisplayProps) {
-  const breakEven = calculateBreakEven(analysis);
+export function BreakEvenDisplay({ analysis, inputs }: BreakEvenDisplayProps) {
+  const breakEven = calculateBreakEven(analysis, inputs);
   const isPositive = analysis.cash_flow.monthly_net >= 0;
 
 
@@ -41,20 +42,20 @@ export function BreakEvenDisplay({ analysis }: BreakEvenDisplayProps) {
     {
       category: 'Monthly Rent',
       current: analysis.revenue.gross_monthly_rent,
-      breakEven: breakEven.rent_at_break_even,
+      breakEven: breakEven.break_even_rent,
       difference: breakEven.rent_increase_needed_dollars,
     },
     {
       category: 'Purchase Price',
       current: analysis.acquisition.purchase_price,
-      breakEven: breakEven.max_purchase_price_for_break_even,
-      difference: breakEven.price_reduction_for_break_even,
+      breakEven: breakEven.max_purchase_price_for_positive_cf,
+      difference: breakEven.purchase_price_reduction_needed,
     },
     {
       category: 'Monthly Expenses',
       current: analysis.expenses.monthly.total - analysis.expenses.monthly.mortgage,
       breakEven: breakEven.max_affordable_expenses,
-      difference: breakEven.expense_reduction_for_break_even,
+      difference: breakEven.expense_reduction_needed,
     },
   ];
 
@@ -138,7 +139,7 @@ export function BreakEvenDisplay({ analysis }: BreakEvenDisplayProps) {
           </div>
           <div className="mb-2">
             <div className="text-2xl font-bold text-blue-600">
-              {formatCurrencyUtil(breakEven.rent_at_break_even)}
+              {formatCurrencyUtil(breakEven.break_even_rent)}
             </div>
             <div className="text-xs text-gray-500">Required monthly rent</div>
           </div>
@@ -158,15 +159,15 @@ export function BreakEvenDisplay({ analysis }: BreakEvenDisplayProps) {
           </div>
           <div className="mb-2">
             <div className="text-2xl font-bold text-green-600">
-              {formatCurrencyUtil(breakEven.max_purchase_price_for_break_even)}
+              {formatCurrencyUtil(breakEven.max_purchase_price_for_positive_cf)}
             </div>
             <div className="text-xs text-gray-500">Max affordable price</div>
           </div>
-          <div className={`text-sm font-semibold ${getSeverityColor(breakEven.price_reduction_percent)}`}>
-            {formatPercent(breakEven.price_reduction_percent)} reduction
+          <div className={`text-sm font-semibold ${getSeverityColor(breakEven.purchase_price_reduction_percent)}`}>
+            {formatPercent(breakEven.purchase_price_reduction_percent)} reduction
           </div>
           <div className="text-xs text-gray-600 mt-1">
-            -{formatCurrencyUtil(Math.abs(breakEven.price_reduction_for_break_even))}
+            -{formatCurrencyUtil(Math.abs(breakEven.purchase_price_reduction_needed))}
           </div>
         </div>
 
@@ -186,7 +187,7 @@ export function BreakEvenDisplay({ analysis }: BreakEvenDisplayProps) {
             {formatPercent(breakEven.expense_reduction_percent)} reduction
           </div>
           <div className="text-xs text-gray-600 mt-1">
-            -{formatCurrencyUtil(Math.abs(breakEven.expense_reduction_for_break_even))}
+            -{formatCurrencyUtil(Math.abs(breakEven.expense_reduction_needed))}
           </div>
         </div>
 
@@ -274,92 +275,7 @@ export function BreakEvenDisplay({ analysis }: BreakEvenDisplayProps) {
         </div>
       )}
 
-      {/* Expense Optimization Breakdown */}
-      {breakEven.expense_optimization && (
-        <div className="bg-white rounded-lg p-6 border border-gray-200">
-          <h4 className="text-lg font-semibold mb-4">💡 Expense Optimization Opportunities</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Property Management */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h5 className="font-semibold mb-2 text-gray-700">Property Management</h5>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Current:</span>
-                  <span className="font-medium">{formatCurrencyUtil(breakEven.expense_optimization.current_property_mgmt)}/mo</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Self-Manage (0%):</span>
-                  <span className="font-medium text-green-600">
-                    Save {formatCurrencyUtil(breakEven.expense_optimization.savings_if_self_manage)}/mo
-                  </span>
-                </div>
-                <div className="text-xs text-gray-500 mt-2">
-                  Self-managing requires time but can significantly reduce expenses
-                </div>
-              </div>
-            </div>
 
-            {/* Maintenance */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h5 className="font-semibold mb-2 text-gray-700">Maintenance Budget</h5>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Current:</span>
-                  <span className="font-medium">{formatCurrencyUtil(breakEven.expense_optimization.current_maintenance)}/mo</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Reduce to 1% (from {((analysis.expenses.annual_maintenance / analysis.acquisition.purchase_price) * 100).toFixed(1)}%):</span>
-                  <span className="font-medium text-green-600">
-                    Save {formatCurrencyUtil(breakEven.expense_optimization.savings_if_reduce_maintenance)}/mo
-                  </span>
-                </div>
-                <div className="text-xs text-gray-500 mt-2">
-                  Newer properties may justify lower maintenance budgets
-                </div>
-              </div>
-            </div>
-
-            {/* Insurance */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h5 className="font-semibold mb-2 text-gray-700">Insurance Shopping</h5>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Current:</span>
-                  <span className="font-medium">{formatCurrencyUtil(breakEven.expense_optimization.current_insurance)}/mo</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Shop for 15% savings:</span>
-                  <span className="font-medium text-green-600">
-                    Save {formatCurrencyUtil(breakEven.expense_optimization.savings_if_shop_insurance)}/mo
-                  </span>
-                </div>
-                <div className="text-xs text-gray-500 mt-2">
-                  Compare quotes from multiple insurers annually
-                </div>
-              </div>
-            </div>
-
-            {/* Total Potential Savings */}
-            <div className="border-2 border-blue-200 rounded-lg p-4 bg-blue-50">
-              <h5 className="font-semibold mb-2 text-blue-900">Total Potential Savings</h5>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-700">All Optimizations:</span>
-                  <span className="font-bold text-blue-600 text-lg">
-                    {formatCurrencyUtil(breakEven.expense_optimization.total_potential_savings)}/mo
-                  </span>
-                </div>
-                <div className="text-xs text-gray-600 mt-2">
-                  {breakEven.expense_optimization.total_potential_savings >= Math.abs(analysis.cash_flow.monthly_net)
-                    ? '✅ This would make the deal cash flow positive!'
-                    : `This brings you ${formatPercent((breakEven.expense_optimization.total_potential_savings / Math.abs(analysis.cash_flow.monthly_net)) * 100)} closer to break-even`
-                  }
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Recommendations */}
       <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg p-6 border border-yellow-200">
@@ -383,12 +299,12 @@ export function BreakEvenDisplay({ analysis }: BreakEvenDisplayProps) {
                   }
                 </div>
               </div>
-              <div className={`p-3 rounded-md border ${getSeverityBadge(breakEven.price_reduction_percent)}`}>
+              <div className={`p-3 rounded-md border ${getSeverityBadge(breakEven.purchase_price_reduction_percent)}`}>
                 <div className="text-xs font-medium mb-1">Price Negotiation</div>
                 <div className="text-sm">
-                  {Math.abs(breakEven.price_reduction_percent) <= 5
+                  {Math.abs(breakEven.purchase_price_reduction_percent) <= 5
                     ? '✅ Reasonable - try negotiating this discount'
-                    : Math.abs(breakEven.price_reduction_percent) <= 15
+                    : Math.abs(breakEven.purchase_price_reduction_percent) <= 15
                     ? '⚠️ Aggressive - but possible in buyer\'s market'
                     : '❌ Unlikely - seller won\'t accept this discount'
                   }
@@ -412,16 +328,10 @@ export function BreakEvenDisplay({ analysis }: BreakEvenDisplayProps) {
           <div className="mt-4">
             <h5 className="font-semibold text-sm mb-2">Recommended Actions:</h5>
             <ul className="space-y-2 text-sm">
-              {Math.abs(breakEven.price_reduction_percent) <= 10 && (
+              {Math.abs(breakEven.purchase_price_reduction_percent) <= 10 && (
                 <li className="flex items-start gap-2">
                   <span className="text-green-600 font-bold mt-0.5">1.</span>
-                  <span>Negotiate purchase price down by {formatPercent(Math.abs(breakEven.price_reduction_percent))} ({formatCurrencyUtil(Math.abs(breakEven.price_reduction_for_break_even))}) - this is your best option</span>
-                </li>
-              )}
-              {breakEven.expense_optimization && breakEven.expense_optimization.total_potential_savings > 0 && (
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-600 font-bold mt-0.5">2.</span>
-                  <span>Implement expense optimizations to save {formatCurrencyUtil(breakEven.expense_optimization.total_potential_savings)}/month</span>
+                  <span>Negotiate purchase price down by {formatPercent(Math.abs(breakEven.purchase_price_reduction_percent))} ({formatCurrencyUtil(Math.abs(breakEven.purchase_price_reduction_needed))}) - this is your best option</span>
                 </li>
               )}
               {Math.abs(breakEven.rent_increase_needed_percent) <= 15 && (
@@ -436,7 +346,7 @@ export function BreakEvenDisplay({ analysis }: BreakEvenDisplayProps) {
                   <span>Consider a "buy and hold" strategy - you'll reach positive cash flow in {breakEven.years_to_positive_cf} years through rent growth</span>
                 </li>
               )}
-              {!isPositive && Math.abs(breakEven.price_reduction_percent) > 15 && Math.abs(breakEven.rent_increase_needed_percent) > 20 && (
+              {!isPositive && Math.abs(breakEven.purchase_price_reduction_percent) > 15 && Math.abs(breakEven.rent_increase_needed_percent) > 20 && (
                 <li className="flex items-start gap-2">
                   <span className="text-red-600 font-bold mt-0.5">⚠️</span>
                   <span className="text-red-700 font-medium">This deal may not be salvageable at the current price. Consider walking away or combining multiple strategies (price reduction + rent increase + expense cuts).</span>

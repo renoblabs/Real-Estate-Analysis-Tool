@@ -23,6 +23,7 @@ export default function DealDetailPage() {
 
   const [deal, setDeal] = useState<Deal | null>(null);
   const [analysis, setAnalysis] = useState<DealAnalysis | null>(null);
+  const [inputs, setInputs] = useState<PropertyInputs | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -88,7 +89,8 @@ export default function DealDetailPage() {
         other_expenses_monthly: data.other_expenses_monthly,
       };
 
-      const analysisResult = analyzeDeal(inputs);
+      const analysisResult = await analyzeDeal(inputs);
+      setInputs(inputs);
       setAnalysis(analysisResult);
     } catch (error: any) {
       const message = error.message?.includes('timed out')
@@ -471,12 +473,15 @@ export default function DealDetailPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <CashFlowProjectionChart
-              analysis={analysis}
-              years={10}
-              appreciationRate={3.0}
-              rentGrowthRate={2.5}
-            />
+            {inputs && (
+              <CashFlowProjectionChart
+                analysis={analysis}
+                inputs={inputs}
+                years={10}
+                appreciationRate={3.0}
+                rentGrowthRate={2.5}
+              />
+            )}
           </CardContent>
         </Card>
 

@@ -71,73 +71,73 @@ export const CATEGORY_BENCHMARKS: Record<string, number> = {
  * Analyze expense ratio and identify optimization opportunities
  */
 export function analyzeExpenseRatio(analysis: DealAnalysis): ExpenseRatioAnalysis {
-  const revenue = analysis.revenue.annual_rent;
-  const expenses = analysis.expenses.total_annual_expenses - analysis.expenses.annual_mortgage;
+  const revenue = analysis.revenue.annual_gross_income;
+  const expenses = analysis.expenses.annual.total - analysis.expenses.annual.mortgage;
 
   // Calculate expense breakdown
   const breakdown: ExpenseBreakdown[] = [
     {
       category: 'Property Tax',
-      annual_amount: analysis.expenses.annual_property_tax,
-      percent_of_total: (analysis.expenses.annual_property_tax / expenses) * 100,
-      percent_of_revenue: (analysis.expenses.annual_property_tax / revenue) * 100,
+      annual_amount: analysis.expenses.annual.property_tax,
+      percent_of_total: (analysis.expenses.annual.property_tax / expenses) * 100,
+      percent_of_revenue: (analysis.expenses.annual.property_tax / revenue) * 100,
       is_optimizable: false, // Fixed by municipality
       market_benchmark_percent: CATEGORY_BENCHMARKS.property_tax,
     },
     {
       category: 'Insurance',
-      annual_amount: analysis.expenses.annual_insurance,
-      percent_of_total: (analysis.expenses.annual_insurance / expenses) * 100,
-      percent_of_revenue: (analysis.expenses.annual_insurance / revenue) * 100,
+      annual_amount: analysis.expenses.annual.insurance,
+      percent_of_total: (analysis.expenses.annual.insurance / expenses) * 100,
+      percent_of_revenue: (analysis.expenses.annual.insurance / revenue) * 100,
       is_optimizable: true,
       market_benchmark_percent: CATEGORY_BENCHMARKS.insurance,
-      potential_savings: Math.max(0, analysis.expenses.annual_insurance * 0.15), // 15% savings possible
+      potential_savings: Math.max(0, analysis.expenses.annual.insurance * 0.15), // 15% savings possible
     },
     {
       category: 'Property Management',
-      annual_amount: analysis.expenses.annual_property_management,
-      percent_of_total: (analysis.expenses.annual_property_management / expenses) * 100,
-      percent_of_revenue: (analysis.expenses.annual_property_management / revenue) * 100,
+      annual_amount: analysis.expenses.annual.property_management,
+      percent_of_total: (analysis.expenses.annual.property_management / expenses) * 100,
+      percent_of_revenue: (analysis.expenses.annual.property_management / revenue) * 100,
       is_optimizable: true,
       market_benchmark_percent: CATEGORY_BENCHMARKS.property_management,
-      potential_savings: analysis.expenses.annual_property_management, // Can self-manage
+      potential_savings: analysis.expenses.annual.property_management, // Can self-manage
     },
     {
       category: 'Maintenance',
-      annual_amount: analysis.expenses.annual_maintenance,
-      percent_of_total: (analysis.expenses.annual_maintenance / expenses) * 100,
-      percent_of_revenue: (analysis.expenses.annual_maintenance / revenue) * 100,
+      annual_amount: analysis.expenses.annual.maintenance,
+      percent_of_total: (analysis.expenses.annual.maintenance / expenses) * 100,
+      percent_of_revenue: (analysis.expenses.annual.maintenance / revenue) * 100,
       is_optimizable: true,
       market_benchmark_percent: CATEGORY_BENCHMARKS.maintenance,
-      potential_savings: Math.max(0, analysis.expenses.annual_maintenance * 0.25), // 25% reduction possible
+      potential_savings: Math.max(0, analysis.expenses.annual.maintenance * 0.25), // 25% reduction possible
     },
     {
       category: 'Utilities',
-      annual_amount: analysis.expenses.annual_utilities,
-      percent_of_total: (analysis.expenses.annual_utilities / expenses) * 100,
-      percent_of_revenue: (analysis.expenses.annual_utilities / revenue) * 100,
+      annual_amount: analysis.expenses.annual.utilities,
+      percent_of_total: (analysis.expenses.annual.utilities / expenses) * 100,
+      percent_of_revenue: (analysis.expenses.annual.utilities / revenue) * 100,
       is_optimizable: true,
       market_benchmark_percent: CATEGORY_BENCHMARKS.utilities,
-      potential_savings: Math.max(0, analysis.expenses.annual_utilities * 0.20), // 20% reduction possible
+      potential_savings: Math.max(0, analysis.expenses.annual.utilities * 0.20), // 20% reduction possible
     },
     {
       category: 'Vacancy Cost',
-      annual_amount: analysis.expenses.vacancy_cost,
-      percent_of_total: (analysis.expenses.vacancy_cost / expenses) * 100,
-      percent_of_revenue: (analysis.expenses.vacancy_cost / revenue) * 100,
+      annual_amount: analysis.revenue.vacancy_loss_monthly * 12,
+      percent_of_total: (analysis.revenue.vacancy_loss_monthly * 12 / expenses) * 100,
+      percent_of_revenue: (analysis.revenue.vacancy_loss_monthly * 12 / revenue) * 100,
       is_optimizable: true,
       market_benchmark_percent: CATEGORY_BENCHMARKS.vacancy,
-      potential_savings: Math.max(0, analysis.expenses.vacancy_cost * 0.30), // Better tenant screening
+      potential_savings: Math.max(0, analysis.revenue.vacancy_loss_monthly * 12 * 0.30), // Better tenant screening
     },
   ];
 
   // Add HOA/Condo fees if applicable
-  if (analysis.expenses.annual_hoa_condo > 0) {
+  if (analysis.expenses.annual.hoa_fees > 0) {
     breakdown.push({
       category: 'HOA/Condo Fees',
-      annual_amount: analysis.expenses.annual_hoa_condo,
-      percent_of_total: (analysis.expenses.annual_hoa_condo / expenses) * 100,
-      percent_of_revenue: (analysis.expenses.annual_hoa_condo / revenue) * 100,
+      annual_amount: analysis.expenses.annual.hoa_fees,
+      percent_of_total: (analysis.expenses.annual.hoa_fees / expenses) * 100,
+      percent_of_revenue: (analysis.expenses.annual.hoa_fees / revenue) * 100,
       is_optimizable: false, // Fixed fees
       market_benchmark_percent: CATEGORY_BENCHMARKS.hoa_condo,
     });

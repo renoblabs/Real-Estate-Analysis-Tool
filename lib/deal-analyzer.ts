@@ -12,7 +12,11 @@ import type {
   BRRRRAnalysis,
   MarketComparison,
   DealFlags,
-  PropertyType
+  PropertyType,
+  MultiFamilyInputs,
+  MultiFamilyAnalysis,
+  SmallMultifamilyInputs,
+  SmallMultifamilyAnalysis
 } from '@/types';
 
 import {
@@ -26,12 +30,34 @@ import {
 
 import { calculateDealScore } from './deal-scoring';
 import { MARKET_BENCHMARKS, CLOSING_COSTS } from '@/constants/market-data';
+import { analyzeMultiFamilyDevelopment } from './multifamily-analyzer';
+import { analyzeSmallMultifamily } from './small-multifamily-analyzer';
 
 /**
  * Main deal analysis function
  * Takes property inputs and returns comprehensive analysis
  */
-export function analyzeDeal(inputs: PropertyInputs): DealAnalysis {
+export async function analyzeDeal(inputs: PropertyInputs): Promise<DealAnalysis | MultiFamilyAnalysis | SmallMultifamilyAnalysis> {
+  // Check if this is a small multifamily analysis
+  const smallMultifamilyInputs = inputs as SmallMultifamilyInputs;
+  if (smallMultifamilyInputs.analysis_type === 'small_multifamily') {
+    return await analyzeSmallMultifamily(smallMultifamilyInputs);
+  }
+  
+  // Check if this is a multi-family development analysis
+  const multiFamilyInputs = inputs as MultiFamilyInputs;
+  if (multiFamilyInputs.analysis_type === 'multifamily_development') {
+    return await analyzeMultiFamilyDevelopment(multiFamilyInputs);
+  }
+
+  // Continue with standard rental analysis
+  return analyzeRentalProperty(inputs);
+}
+
+/**
+ * Standard rental property analysis
+ */
+export function analyzeRentalProperty(inputs: PropertyInputs): DealAnalysis {
   // Calculate acquisition costs
   const acquisition = calculateAcquisitionCosts(inputs);
 

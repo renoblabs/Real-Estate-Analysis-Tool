@@ -97,12 +97,12 @@ export function analyzeAirbnb(
     supplies_cost +
     management_fee +
     extra_insurance +
-    baseAnalysis.expenses.annual_property_tax +
-    baseAnalysis.expenses.annual_insurance; // Base insurance
+    baseAnalysis.expenses.annual.property_tax +
+    baseAnalysis.expenses.annual.insurance; // Base insurance
 
   // Net Revenue
   const net_revenue_before_mortgage = total_gross_revenue - total_str_expenses;
-  const annual_mortgage_payment = baseAnalysis.expenses.annual_mortgage;
+  const annual_mortgage_payment = baseAnalysis.expenses.annual.mortgage;
   const net_cash_flow = net_revenue_before_mortgage - annual_mortgage_payment;
   const monthly_average_cash_flow = net_cash_flow / 12;
 
@@ -117,15 +117,15 @@ export function analyzeAirbnb(
     (str_vs_ltr_cash_flow_difference / Math.abs(long_term_analysis.cash_flow.annual_net)) * 100;
 
   // Break-even occupancy (to match LTR cash flow)
-  const ltr_net_revenue = long_term_analysis.revenue.annual_rent -
-    (long_term_analysis.expenses.total_annual_expenses - annual_mortgage_payment);
+  const ltr_net_revenue = long_term_analysis.revenue.annual_gross_income -
+    (long_term_analysis.expenses.annual.total - annual_mortgage_payment);
   const daily_profit = airbnbInputs.average_daily_rate -
     (total_str_expenses / occupied_nights);
   const break_even_nights = ltr_net_revenue / daily_profit;
   const break_even_occupancy = Math.min((break_even_nights / nights_per_year) * 100, 100);
 
   // ROI
-  const initial_investment = baseAnalysis.acquisition.total_cash_needed + airbnbInputs.furnishing_cost;
+  const initial_investment = baseAnalysis.acquisition.total_acquisition_cost + airbnbInputs.furnishing_cost;
   const first_year_coc_return = (net_cash_flow / initial_investment) * 100;
 
   // Risk Assessment
