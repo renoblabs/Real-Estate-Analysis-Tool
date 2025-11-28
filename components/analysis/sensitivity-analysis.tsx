@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   LineChart,
   Line,
@@ -31,9 +31,10 @@ type SensitivityVariable =
 export function SensitivityAnalysis({ baseInputs, baseAnalysis }: SensitivityAnalysisProps) {
   const [selectedVariable, setSelectedVariable] = useState<SensitivityVariable>('rent');
   const [rangePercent, setRangePercent] = useState(20); // -20% to +20%
+  const [sensitivityData, setSensitivityData] = useState<any[]>([]);
 
   // Generate sensitivity data
-  const generateSensitivityData = () => {
+  const generateSensitivityData = async () => {
     const dataPoints = 11; // -20%, -16%, -12%, ..., 0%, ..., +20%
     const step = (rangePercent * 2) / (dataPoints - 1);
     const data = [];
@@ -66,24 +67,30 @@ export function SensitivityAnalysis({ baseInputs, baseAnalysis }: SensitivityAna
           break;
       }
 
-      const analysis = analyzeDeal(modifiedInputs);
+      const analysis = await analyzeDeal(modifiedInputs);
 
       data.push({
         change: percentChange,
         label: `${percentChange > 0 ? '+' : ''}${percentChange.toFixed(0)}%`,
-        monthlyCashFlow: analysis.cash_flow.monthly_net,
-        annualCashFlow: analysis.cash_flow.annual_net,
-        capRate: analysis.metrics.cap_rate,
-        cocReturn: analysis.metrics.cash_on_cash_return,
-        dscr: analysis.metrics.dscr,
-        score: analysis.scoring.total_score,
+        monthlyCashFlow: (analysis as DealAnalysis).cash_flow.monthly_net,
+        annualCashFlow: (analysis as DealAnalysis).cash_flow.annual_net,
+        capRate: (analysis as DealAnalysis).metrics.cap_rate,
+        cocReturn: (analysis as DealAnalysis).metrics.cash_on_cash_return,
+        dscr: (analysis as DealAnalysis).metrics.dscr,
+        score: (analysis as DealAnalysis).scoring.total_score,
       });
     }
 
     return data;
   };
 
-  const sensitivityData = generateSensitivityData();
+  useEffect(() => {
+    const loadData = async () => {
+      const data = await generateSensitivityData();
+      setSensitivityData(data);
+    };
+    loadData();
+  }, [selectedVariable, rangePercent]);
 
   const variables = [
     { key: 'rent', label: 'Monthly Rent', description: 'Impact of rent changes on deal performance' },

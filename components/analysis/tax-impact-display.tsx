@@ -16,7 +16,7 @@ import {
   Pie,
   Cell,
 } from 'recharts';
-import type { DealAnalysis } from '@/types';
+import type { DealAnalysis, PropertyInputs } from '@/types';
 import {
   calculateTaxImpact,
   calculateMultiYearTaxProjection,
@@ -26,15 +26,16 @@ import { DollarSign, TrendingDown, TrendingUp, Calculator } from 'lucide-react';
 
 interface TaxImpactDisplayProps {
   analysis: DealAnalysis;
+  inputs: PropertyInputs;
 }
 
-export function TaxImpactDisplay({ analysis }: TaxImpactDisplayProps) {
+export function TaxImpactDisplay({ analysis, inputs }: TaxImpactDisplayProps) {
   const [employmentIncome, setEmploymentIncome] = useState(80000);
   const [yearsHeld, setYearsHeld] = useState(5);
   const [appreciationRate, setAppreciationRate] = useState(3.0);
 
-  const taxImpact = calculateTaxImpact(analysis, employmentIncome, yearsHeld, appreciationRate);
-  const multiYearProjection = calculateMultiYearTaxProjection(analysis, employmentIncome, yearsHeld);
+  const taxImpact = calculateTaxImpact(analysis, inputs, employmentIncome, yearsHeld, appreciationRate);
+  const multiYearProjection = calculateMultiYearTaxProjection(analysis, inputs, employmentIncome, yearsHeld);
 
   // Prepare data for deductions pie chart
   const deductionsData = [
@@ -230,7 +231,7 @@ export function TaxImpactDisplay({ analysis }: TaxImpactDisplayProps) {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) => `${name}: ${percent ? (percent * 100).toFixed(0) : 0}%`}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"

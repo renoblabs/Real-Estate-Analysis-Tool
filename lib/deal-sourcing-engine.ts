@@ -198,7 +198,8 @@ export class DealSourcingEngine {
    */
   static analyzeDealOpportunity(
     analysis: DealAnalysis,
-    criteria: DealSourcingCriteria
+    criteria: DealSourcingCriteria,
+    inputs?: PropertyInputs
   ): DealOpportunity {
     const scores: number[] = [];
     const reasons: string[] = [];
@@ -206,7 +207,7 @@ export class DealSourcingEngine {
     const recommendations: string[] = [];
 
     // 1. Cash Flow Analysis (25 points)
-    const monthlyCashFlow = analysis.cashFlow.monthly;
+    const monthlyCashFlow = analysis.cash_flow.monthly_net;
     if (monthlyCashFlow >= criteria.minCashFlow) {
       const cashFlowScore = Math.min(25, (monthlyCashFlow / criteria.minCashFlow) * 15);
       scores.push(cashFlowScore);
@@ -217,7 +218,7 @@ export class DealSourcingEngine {
     }
 
     // 2. ROI Analysis (20 points)
-    const roi = analysis.returns.cash_on_cash_return;
+    const roi = analysis.metrics.cash_on_cash_return;
     if (roi >= criteria.minROI) {
       const roiScore = Math.min(20, (roi / criteria.minROI) * 15);
       scores.push(roiScore);
@@ -240,13 +241,13 @@ export class DealSourcingEngine {
     recommendations.push(...renovationScore.recommendations);
 
     // 5. Financial Structure (10 points)
-    const financialScore = this.analyzeFinancialStructure(analysis);
+    const financialScore = this.analyzeFinancialStructure(analysis, inputs);
     scores.push(financialScore.score);
     reasons.push(...financialScore.reasons);
     redFlags.push(...financialScore.redFlags);
 
     // 6. Risk Assessment (10 points)
-    const riskScore = this.analyzeRiskFactors(analysis, criteria);
+    const riskScore = this.analyzeRiskFactors(analysis, criteria, inputs);
     scores.push(riskScore.score);
     reasons.push(...riskScore.reasons);
     redFlags.push(...riskScore.redFlags);
@@ -262,7 +263,7 @@ export class DealSourcingEngine {
       estimatedROI: roi,
       cashFlow: monthlyCashFlow,
       equityGain: this.estimateEquityGain(analysis),
-      riskLevel: this.assessOverallRisk(analysis, criteria)
+      riskLevel: this.assessOverallRisk(analysis, criteria, inputs)
     };
   }
 
@@ -350,7 +351,7 @@ export class DealSourcingEngine {
     return { score: Math.min(15, score), reasons, recommendations };
   }
 
-  private static analyzeFinancialStructure(analysis: DealAnalysis) {
+  private static analyzeFinancialStructure(analysis: DealAnalysis, inputs?: PropertyInputs) {
     const reasons: string[] = [];
     const redFlags: string[] = [];
     let score = 0;
@@ -369,7 +370,7 @@ export class DealSourcingEngine {
     }
 
     // Debt service coverage
-    const annualCashFlow = analysis.cashFlow.monthly * 12;
+    const annualCashFlow = analysis.cash_flow.monthly_net * 12;
     const annualDebtService = analysis.financing.monthly_payment * 12;
     const dscr = (annualCashFlow + annualDebtService) / annualDebtService;
 
@@ -383,11 +384,13 @@ export class DealSourcingEngine {
     }
 
     // Interest rate risk
-    if (analysis.financing.interest_rate > 7) {
-      redFlags.push('High interest rate increases refinancing risk');
-    } else if (analysis.financing.interest_rate < 5) {
-      score += 2;
-      reasons.push('Favorable interest rate');
+    if (inputs?.interest_rate) {
+      if (inputs.interest_rate > 7) {
+        redFlags.push('High interest rate increases refinancing risk');
+      } else if (inputs.interest_rate < 5) {
+        score += 2;
+        reasons.push('Favorable interest rate');
+      }
     }
 
     return { score: Math.min(10, score), reasons, redFlags };
@@ -395,7 +398,8 @@ export class DealSourcingEngine {
 
   private static analyzeRiskFactors(
     analysis: DealAnalysis,
-    criteria: DealSourcingCriteria
+    criteria: DealSourcingCriteria,
+    inputs?: PropertyInputs
   ) {
     const reasons: string[] = [];
     const redFlags: string[] = [];
@@ -408,13 +412,13 @@ export class DealSourcingEngine {
     }
 
     // Property type risk
-    if (analysis.property.property_type === 'condo') {
-      score -= 2;
-      redFlags.push('Condo market showing weakness in major cities');
+    if (analysis.property.property_type === 'single_family') {
+      score += 1;
+      reasons.push('Single family homes have stable demand');
     }
 
     // Vacancy risk
-    const vacancyRate = analysis.expenses.vacancy_rate || 5;
+    const vacancyRate = inputs?.vacancy_rate || 5;
     if (vacancyRate > 8) {
       score -= 3;
       redFlags.push(`High vacancy rate: ${vacancyRate}%`);
@@ -423,7 +427,7 @@ export class DealSourcingEngine {
     }
 
     // Risk tolerance alignment
-    const riskLevel = this.assessOverallRisk(analysis, criteria);
+    const riskLevel = this.assessOverallRisk(analysis, criteria, inputs);
     if (riskLevel === criteria.riskTolerance || 
         (criteria.riskTolerance === 'Medium' && riskLevel !== 'High')) {
       reasons.push('Risk level aligns with investor tolerance');
@@ -452,7 +456,8 @@ export class DealSourcingEngine {
 
   private static assessOverallRisk(
     analysis: DealAnalysis,
-    criteria: DealSourcingCriteria
+    criteria: DealSourcingCriteria,
+    inputs?: PropertyInputs
   ): 'Low' | 'Medium' | 'High' {
     let riskFactors = 0;
 
@@ -460,14 +465,14 @@ export class DealSourcingEngine {
     if (analysis.acquisition.purchase_price > 800000) riskFactors++;
     
     // High leverage
-    const ltv = (analysis.financing.loan_amount / analysis.acquisition.purchase_price) * 100;
+    const ltv = (analysis.financing.mortgage_amount / analysis.acquisition.purchase_price) * 100;
     if (ltv > 80) riskFactors++;
     
     // Negative cash flow
-    if (analysis.cashFlow.monthly < 0) riskFactors += 2;
+    if (analysis.cash_flow.monthly_net < 0) riskFactors += 2;
     
     // High interest rates
-    if (analysis.financing.interest_rate > 6.5) riskFactors++;
+    if (inputs?.interest_rate && inputs.interest_rate > 6.5) riskFactors++;
 
     if (riskFactors >= 3) return 'High';
     if (riskFactors >= 1) return 'Medium';

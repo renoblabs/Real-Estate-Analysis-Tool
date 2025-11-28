@@ -12,7 +12,7 @@ export type DealGrade = 'A' | 'B' | 'C' | 'D' | 'F';
 export type DevelopmentType = 'raw_land' | 'existing_structure' | 'new_construction';
 export type RenovationScope = 'cosmetic' | 'moderate' | 'heavy' | 'gut_renovation' | 'new_build';
 export type UnitType = 'studio' | '1br' | '2br' | '3br' | '4br';
-export type AnalysisType = 'rental' | 'multifamily_development' | 'deal_sourcing';
+export type AnalysisType = 'rental' | 'multifamily_development' | 'deal_sourcing' | 'small_multifamily';
 
 export interface PropertyUnit {
   unit_number: string;
@@ -472,4 +472,138 @@ export interface MultiFamilyAnalysis extends DealAnalysis {
   profitability_gaps: ProfitabilityGaps;
   construction_timeline: ConstructionTimeline;
   risk_assessment: DevelopmentRiskAssessment;
+}
+
+// Small Multifamily (1-4 Units) Analysis Types
+export interface SmallMultifamilyInputs extends PropertyInputs {
+  analysis_type: 'small_multifamily';
+  
+  // Property Configuration
+  target_unit_count: 1 | 2 | 3 | 4;
+  current_unit_count?: number; // For existing structures
+  
+  // Development Approach
+  development_approach: 'raw_land' | 'existing_conversion' | 'existing_addition';
+  
+  // Raw Land Specific
+  land_acquisition_cost?: number;
+  site_preparation_cost?: number;
+  utility_connections_cost?: number;
+  
+  // Existing Structure Specific
+  existing_structure_value?: number;
+  conversion_feasibility_score?: number; // 1-10
+  
+  // Construction/Renovation Costs
+  construction_cost_per_unit?: number;
+  renovation_cost_per_unit?: number;
+  permit_and_approval_costs?: number;
+  
+  // Unit Details
+  planned_units: SmallMultifamilyUnit[];
+  
+  // Market Research
+  local_rent_comparables: RentComparable[];
+  market_vacancy_rate?: number;
+  
+  // Timeline
+  estimated_completion_months?: number;
+}
+
+export interface SmallMultifamilyUnit {
+  unit_number: string;
+  unit_type: UnitType;
+  square_feet: number;
+  bedrooms: number;
+  bathrooms: number;
+  target_monthly_rent: number;
+  construction_cost?: number;
+  renovation_cost?: number;
+}
+
+export interface RentComparable {
+  address: string;
+  unit_type: UnitType;
+  monthly_rent: number;
+  square_feet: number;
+  bedrooms: number;
+  bathrooms: number;
+  distance_km: number;
+  property_age_years: number;
+  last_updated: string;
+}
+
+export interface SmallMultifamilyAnalysis extends DealAnalysis {
+  // Development Cost Breakdown
+  development_costs: {
+    land_acquisition: number;
+    site_preparation: number;
+    construction_per_unit: number;
+    renovation_per_unit: number;
+    permits_and_approvals: number;
+    utility_connections: number;
+    contingency: number;
+    total_development_cost: number;
+  };
+  
+  // Unit-by-Unit Analysis
+  unit_analysis: {
+    unit_number: string;
+    projected_rent: number;
+    cost_to_create: number;
+    monthly_net_income: number;
+    roi_per_unit: number;
+  }[];
+  
+  // Market Analysis
+  market_analysis: {
+    average_rent_per_unit_type: Record<UnitType, number>;
+    market_vacancy_rate: number;
+    rent_growth_projection: number;
+    comparable_properties_count: number;
+    market_strength_score: number; // 1-10
+  };
+  
+  // Profitability Analysis
+  profitability: {
+    total_investment: number;
+    total_annual_income: number;
+    total_annual_expenses: number;
+    net_annual_income: number;
+    cash_on_cash_return: number;
+    cap_rate: number;
+    break_even_occupancy: number;
+    payback_period_years: number;
+  };
+  
+  // Risk Assessment
+  risk_factors: {
+    construction_risk: string[];
+    market_risk: string[];
+    financial_risk: string[];
+    regulatory_risk: string[];
+    overall_risk_score: number; // 1-10
+  };
+  
+  // Scenarios
+  scenarios: {
+    conservative: ScenarioAnalysis;
+    realistic: ScenarioAnalysis;
+    optimistic: ScenarioAnalysis;
+  };
+}
+
+export interface ScenarioAnalysis {
+  scenario_name: string;
+  assumptions: {
+    rent_achievement: number; // % of target rent achieved
+    vacancy_rate: number;
+    cost_overrun: number; // % over budget
+    timeline_delay_months: number;
+  };
+  projected_returns: {
+    annual_cash_flow: number;
+    cash_on_cash_return: number;
+    total_roi_5_year: number;
+  };
 }

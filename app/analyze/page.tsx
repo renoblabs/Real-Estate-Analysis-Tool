@@ -7,16 +7,19 @@ import { Button } from '@/components/ui/button';
 import { createClient } from '@/lib/supabase/client';
 import { analyzeDeal } from '@/lib/deal-analyzer';
 import { saveDeal } from '@/lib/database';
+import { checkAuthWithDemo, shouldSkipDatabaseOperations } from '@/lib/auth-utils';
 import { toast } from 'sonner';
-import type { PropertyInputs, DealAnalysis, MultiFamilyInputs, MultiFamilyAnalysis, AnalysisType } from '@/types';
+import type { PropertyInputs, DealAnalysis, MultiFamilyInputs, MultiFamilyAnalysis, SmallMultifamilyInputs, SmallMultifamilyAnalysis, AnalysisType } from '@/types';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { PropertyDetailsForm } from '@/components/forms/PropertyDetailsForm';
 import { PurchaseFinancingForm } from '@/components/forms/PurchaseFinancingForm';
 import { RevenueForm } from '@/components/forms/RevenueForm';
 import { ExpensesForm } from '@/components/forms/ExpensesForm';
 import { MultiFamilyDevelopmentForm } from '@/components/forms/MultiFamilyDevelopmentForm';
+import { SmallMultifamilyForm } from '@/components/forms/SmallMultifamilyForm';
 import { AnalysisResultsCard } from '@/components/analysis/AnalysisResultsCard';
 import { MultiFamilyResultsCard } from '@/components/analysis/MultiFamilyResultsCard';
+import { SmallMultifamilyResultsCard } from '@/components/analysis/SmallMultifamilyResultsCard';
 import DealSourcingDashboard from '@/components/analysis/DealSourcingDashboard';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -28,10 +31,10 @@ export default function AnalyzePage() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
-  const [analysis, setAnalysis] = useState<DealAnalysis | MultiFamilyAnalysis | null>(null);
+  const [analysis, setAnalysis] = useState<DealAnalysis | MultiFamilyAnalysis | SmallMultifamilyAnalysis | null>(null);
   const [analysisType, setAnalysisType] = useState<AnalysisType>('rental');
 
-  const [formData, setFormData] = useState<Partial<PropertyInputs | MultiFamilyInputs>>({
+  const [formData, setFormData] = useState<Partial<PropertyInputs | MultiFamilyInputs | SmallMultifamilyInputs>>({
     address: '',
     city: '',
     province: 'ON',
@@ -64,11 +67,27 @@ export default function AnalyzePage() {
     checkAuth();
   }, []);
 
+  // Initialize form data based on analysis type
+  useEffect(() => {
+    if (analysisType === 'small_multifamily') {
+      setFormData(prev => ({
+        ...prev,
+        analysis_type: 'small_multifamily',
+        target_unit_count: 2,
+        development_approach: 'raw_land',
+        planned_units: [],
+        local_rent_comparables: [],
+        market_vacancy_rate: 5.0,
+        estimated_completion_months: 12
+      }));
+    }
+  }, [analysisType]);
+
   const checkAuth = async () => {
     try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
+      const { user, isDemo } = await checkAuthWithDemo();
+      
+      if (!user && !isDemo) {
         router.push('/login');
       } else {
         setUser(user);
@@ -111,20 +130,39 @@ export default function AnalyzePage() {
       }
     }
 
+    // Validate small multi-family specific requirements
+    if (analysisType === 'small_multifamily') {
+      const smfData = formData as Partial<SmallMultifamilyInputs>;
+      if (!smfData.planned_units || smfData.planned_units.length === 0) {
+        toast.error('Please add at least one unit configuration');
+        return;
+      }
+      if (!smfData.development_approach) {
+        toast.error('Please select a development approach');
+        return;
+      }
+      if (!smfData.target_unit_count) {
+        toast.error('Please select target unit count');
+        return;
+      }
+    }
+
     setAnalyzing(true);
     try {
       const analysisData = {
         ...formData,
         analysis_type: analysisType
-      } as PropertyInputs | MultiFamilyInputs;
+      } as PropertyInputs | MultiFamilyInputs | SmallMultifamilyInputs;
 
       const result = await analyzeDeal(analysisData);
       setAnalysis(result);
 
-      // Save to database
-      if (user) {
+      // Save to database (skip in demo mode)
+      if (user && !shouldSkipDatabaseOperations()) {
         await saveDeal(user.id, result, 'analyzing');
-        toast.success('Deal analyzed successfully!');
+        toast.success('Deal analyzed and saved successfully!');
+      } else if (user) {
+        toast.success('Deal analyzed successfully! (Demo mode - not saved)');
       }
     } catch (error: any) {
       toast.error('Error analyzing deal: ' + (error.message || 'Please try again'));
@@ -180,6 +218,7 @@ export default function AnalyzePage() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="rental">Rental Property Analysis</SelectItem>
+                        <SelectItem value="small_multifamily">Small Multifamily (1-4 Units)</SelectItem>
                         <SelectItem value="multifamily_development">Multi-Family Development</SelectItem>
                         <SelectItem value="deal_sourcing">Deal Sourcing & Investment Engine</SelectItem>
                       </SelectContent>
@@ -209,6 +248,11 @@ export default function AnalyzePage() {
                     <RevenueForm formData={formData} onInputChange={handleInputChange} />
                     <ExpensesForm formData={formData} onInputChange={handleInputChange} />
                   </>
+                ) : analysisType === 'small_multifamily' ? (
+                  <SmallMultifamilyForm 
+                    formData={formData as Partial<SmallMultifamilyInputs>} 
+                    onChange={(data) => setFormData(data)} 
+                  />
                 ) : (
                   <MultiFamilyDevelopmentForm 
                     formData={formData as Partial<MultiFamilyInputs>} 
@@ -224,7 +268,11 @@ export default function AnalyzePage() {
                     size="lg"
                     className="flex-1"
                   >
-                    {analyzing ? 'Analyzing...' : `Analyze ${analysisType === 'rental' ? 'Rental Property' : 'Development'}`}
+                    {analyzing ? 'Analyzing...' : `Analyze ${
+                      analysisType === 'rental' ? 'Rental Property' : 
+                      analysisType === 'small_multifamily' ? 'Small Multifamily' : 
+                      'Development'
+                    }`}
                   </Button>
                   <Link href="/dashboard">
                     <Button variant="outline" size="lg">Cancel</Button>
@@ -235,6 +283,8 @@ export default function AnalyzePage() {
                 {analysis && (
                   analysisType === 'rental' ? (
                     <AnalysisResultsCard analysis={analysis as DealAnalysis} />
+                  ) : analysisType === 'small_multifamily' ? (
+                    <SmallMultifamilyResultsCard analysis={analysis as SmallMultifamilyAnalysis} />
                   ) : (
                     <MultiFamilyResultsCard analysis={analysis as MultiFamilyAnalysis} />
                   )

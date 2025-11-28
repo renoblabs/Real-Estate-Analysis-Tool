@@ -26,8 +26,10 @@ import {
   FinancingProfile 
 } from '@/lib/financing-optimizer';
 import { formatCurrency } from '@/lib/utils';
-import { TrendingUp, Home, Wrench, DollarSign, Target, AlertTriangle, MapPin } from 'lucide-react';
+import { TrendingUp, Home, Wrench, DollarSign, Target, AlertTriangle, MapPin, Presentation, Search } from 'lucide-react';
 import NiagaraMarketAnalysis from './NiagaraMarketAnalysis';
+import InvestorPitchDeck from './InvestorPitchDeck';
+import RealDealAnalysis from './RealDealAnalysis';
 
 interface DealSourcingDashboardProps {
   onAnalyzeProperty?: (criteria: DealSourcingCriteria) => void;
@@ -131,9 +133,11 @@ export default function DealSourcingDashboard({ onAnalyzeProperty }: DealSourcin
         </p>
       </div>
 
-      <Tabs defaultValue="niagara" className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
+      <Tabs defaultValue="real-deals" className="w-full">
+        <TabsList className="grid w-full grid-cols-8">
+          <TabsTrigger value="real-deals">🔥 Live Deals</TabsTrigger>
           <TabsTrigger value="niagara">Niagara Market</TabsTrigger>
+          <TabsTrigger value="pitch">Investor Pitch</TabsTrigger>
           <TabsTrigger value="opportunities">Market Opportunities</TabsTrigger>
           <TabsTrigger value="criteria">Investment Criteria</TabsTrigger>
           <TabsTrigger value="diy">DIY Analysis</TabsTrigger>
@@ -141,9 +145,19 @@ export default function DealSourcingDashboard({ onAnalyzeProperty }: DealSourcin
           <TabsTrigger value="recommendations">Action Plan</TabsTrigger>
         </TabsList>
 
+        {/* Real Deals Tab */}
+        <TabsContent value="real-deals" className="space-y-4">
+          <RealDealAnalysis />
+        </TabsContent>
+
         {/* Niagara Market Tab */}
         <TabsContent value="niagara" className="space-y-4">
           <NiagaraMarketAnalysis />
+        </TabsContent>
+
+        {/* Investor Pitch Tab */}
+        <TabsContent value="pitch" className="space-y-4">
+          <InvestorPitchDeck />
         </TabsContent>
 
         {/* Market Opportunities Tab */}

@@ -1,6 +1,6 @@
 // REI OPS™ - Canadian Tax Impact Calculator
 
-import type { DealAnalysis } from '@/types';
+import type { DealAnalysis, PropertyInputs } from '@/types';
 
 export interface TaxBracket {
   min: number;
@@ -189,6 +189,7 @@ export function calculateDepreciation(
  */
 export function calculateTaxImpact(
   analysis: DealAnalysis,
+  inputs: PropertyInputs,
   employmentIncome: number,
   yearsHeld: number = 5,
   appreciationRate: number = 3.0
@@ -196,21 +197,21 @@ export function calculateTaxImpact(
   const province = analysis.property.province;
 
   // Rental Income Tax Calculation
-  const gross_rental_income = analysis.revenue.annual_rent;
+  const gross_rental_income = analysis.revenue.annual_gross_income;
 
   // Deductible expenses (all operating expenses)
   const deductible_expenses =
-    analysis.expenses.annual_property_tax +
-    analysis.expenses.annual_insurance +
-    analysis.expenses.annual_utilities +
-    analysis.expenses.annual_maintenance +
-    analysis.expenses.annual_property_management +
-    analysis.expenses.vacancy_cost;
+    analysis.expenses.annual.property_tax +
+    analysis.expenses.annual.insurance +
+    analysis.expenses.annual.utilities +
+    analysis.expenses.annual.maintenance +
+    analysis.expenses.annual.property_management +
+    analysis.revenue.vacancy_loss_monthly * 12;
 
   // Mortgage interest deduction (approximate for year 1)
   const mortgage_interest_deduction = calculateAnnualMortgageInterest(
     analysis.financing.total_mortgage_with_insurance,
-    analysis.financing.interest_rate
+    inputs.interest_rate
   );
 
   // Depreciation (CCA) - assume 80% is building value
@@ -305,6 +306,7 @@ export interface YearlyTaxProjection {
 
 export function calculateMultiYearTaxProjection(
   analysis: DealAnalysis,
+  inputs: PropertyInputs,
   employmentIncome: number,
   years: number = 5
 ): YearlyTaxProjection[] {
@@ -312,7 +314,7 @@ export function calculateMultiYearTaxProjection(
   let cumulative_tax = 0;
 
   for (let year = 1; year <= years; year++) {
-    const taxImpact = calculateTaxImpact(analysis, employmentIncome, year);
+    const taxImpact = calculateTaxImpact(analysis, inputs, employmentIncome, year);
 
     cumulative_tax += taxImpact.rental_income_tax;
 
