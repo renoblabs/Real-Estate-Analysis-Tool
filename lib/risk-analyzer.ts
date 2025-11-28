@@ -223,7 +223,7 @@ function assessMarketRisks(
   });
 
   // Property Age Risk
-  const propertyAge = new Date().getFullYear() - inputs.year_built;
+  const propertyAge = inputs.year_built ? new Date().getFullYear() - inputs.year_built : 0;
   let ageRiskScore = 0;
 
   if (propertyAge >= 50) {
@@ -315,7 +315,7 @@ function assessOperationalRisks(
   });
 
   // Maintenance Reserve Risk
-  const maintenancePercent = (analysis.expenses.annual_maintenance / analysis.acquisition.purchase_price) * 100;
+  const maintenancePercent = (analysis.expenses.annual.maintenance / analysis.acquisition.purchase_price) * 100;
   let maintenanceRiskScore = 0;
 
   if (maintenancePercent < 1.0) {
@@ -356,7 +356,7 @@ function assessLiquidityRisks(
   const risks: RiskFactor[] = [];
 
   // Capital Requirements Risk
-  const totalCashNeeded = analysis.acquisition.total_cash_needed;
+  const totalCashNeeded = analysis.acquisition.total_acquisition_cost;
   let liquidityRiskScore = 0;
 
   if (totalCashNeeded > 200000) {
@@ -433,7 +433,7 @@ function generateStressTests(analysis: DealAnalysis) {
     {
       scenario: 'Vacancy increases to 10%',
       monthly_cash_flow_impact: -analysis.revenue.gross_monthly_rent * 0.05, // 5% increase in vacancy
-      annual_cash_flow_impact: -analysis.revenue.annual_rent * 0.05,
+      annual_cash_flow_impact: -analysis.revenue.annual_gross_income * 0.05,
       break_even_impact: 'Would require rent increase of 5% to maintain current cash flow',
     },
     {

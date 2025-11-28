@@ -163,15 +163,15 @@ export function generateCashFlowProjections(
 
   for (let year = 1; year <= assumptions.hold_period_years; year++) {
     // Revenue growth
-    const annualRent = analysis.revenue.annual_rent *
+    const annualRent = analysis.revenue.annual_gross_income *
       Math.pow(1 + assumptions.rent_growth_rate / 100, year - 1);
 
     // Expense growth (excluding mortgage which is fixed)
-    const baseExpenses = analysis.expenses.total_annual_expenses - analysis.expenses.annual_mortgage;
+    const baseExpenses = analysis.expenses.annual.total - analysis.expenses.annual.mortgage;
     const annualExpenses = baseExpenses * Math.pow(1 + assumptions.expense_growth_rate / 100, year - 1);
 
     // Annual cash flow (rent - expenses - mortgage)
-    const annualCashFlow = annualRent - annualExpenses - analysis.expenses.annual_mortgage;
+    const annualCashFlow = annualRent - annualExpenses - analysis.expenses.annual.mortgage;
 
     // For the final year, add sale proceeds
     if (year === assumptions.hold_period_years) {
@@ -212,7 +212,7 @@ export function calculateAdvancedMetrics(
   analysis: DealAnalysis,
   assumptions: ProjectionAssumptions
 ): AdvancedMetrics {
-  const initialInvestment = analysis.acquisition.total_cash_needed;
+  const initialInvestment = analysis.acquisition.total_acquisition_cost;
   const cashFlows = generateCashFlowProjections(inputs, analysis, assumptions);
 
   // Calculate IRR

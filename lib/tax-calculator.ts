@@ -196,21 +196,21 @@ export function calculateTaxImpact(
   const province = analysis.property.province;
 
   // Rental Income Tax Calculation
-  const gross_rental_income = analysis.revenue.annual_rent;
+  const gross_rental_income = analysis.revenue.annual_gross_income;
 
   // Deductible expenses (all operating expenses)
   const deductible_expenses =
-    analysis.expenses.annual_property_tax +
-    analysis.expenses.annual_insurance +
-    analysis.expenses.annual_utilities +
-    analysis.expenses.annual_maintenance +
-    analysis.expenses.annual_property_management +
-    analysis.expenses.vacancy_cost;
+    analysis.expenses.annual.property_tax +
+    analysis.expenses.annual.insurance +
+    analysis.expenses.annual.utilities +
+    analysis.expenses.annual.maintenance +
+    analysis.expenses.annual.property_management +
+    analysis.revenue.vacancy_loss_monthly * 12;
 
   // Mortgage interest deduction (approximate for year 1)
   const mortgage_interest_deduction = calculateAnnualMortgageInterest(
     analysis.financing.total_mortgage_with_insurance,
-    analysis.financing.interest_rate
+    analysis.property.interest_rate
   );
 
   // Depreciation (CCA) - assume 80% is building value

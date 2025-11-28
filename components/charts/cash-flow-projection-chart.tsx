@@ -32,14 +32,14 @@ export function CashFlowProjectionChart({
 
   for (let year = 0; year <= years; year++) {
     // Calculate rent with growth
-    const annualRent = analysis.revenue.annual_rent * Math.pow(1 + rentGrowthRate / 100, year);
+    const annualRent = analysis.revenue.annual_gross_income * Math.pow(1 + rentGrowthRate / 100, year);
 
     // Calculate expenses with inflation (assume 2.5% inflation)
     const expenseGrowth = 1 + 2.5 / 100;
     const annualExpenses =
-      (analysis.expenses.total_annual_expenses - analysis.expenses.annual_mortgage) *
+      (analysis.expenses.annual.total - analysis.expenses.annual.mortgage) *
         Math.pow(expenseGrowth, year) +
-      analysis.expenses.annual_mortgage; // Mortgage stays constant
+      analysis.expenses.annual.mortgage; // Mortgage stays constant
 
     // Net cash flow for the year
     const yearCashFlow = annualRent - annualExpenses;
@@ -51,12 +51,12 @@ export function CashFlowProjectionChart({
 
     // Calculate equity (property value - remaining mortgage)
     // Simple amortization approximation
-    const monthlyRate = analysis.financing.interest_rate / 100 / 12;
-    const totalPayments = analysis.financing.amortization_years * 12;
+    const monthlyRate = analysis.property.interest_rate / 100 / 12;
+    const totalPayments = analysis.property.amortization_years * 12;
     const paymentsRemaining = totalPayments - year * 12;
     const remainingMortgage =
       paymentsRemaining > 0
-        ? (analysis.financing.total_mortgage *
+        ? (analysis.financing.total_mortgage_with_insurance *
             (Math.pow(1 + monthlyRate, paymentsRemaining) - 1)) /
           (Math.pow(1 + monthlyRate, totalPayments) - 1)
         : 0;

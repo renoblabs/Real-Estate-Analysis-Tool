@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import type { Deal } from '@/types';
+import type { Deal, PropertyInputs } from '@/types';
 import { analyzeDeal } from '@/lib/deal-analyzer';
 import { ArrowLeft, TrendingUp, DollarSign, Home, BarChart3, AlertTriangle } from 'lucide-react';
 import {
@@ -58,14 +58,14 @@ export default function PortfolioPage() {
   // Calculate portfolio metrics
   const portfolioAnalyses = deals.map((deal) => ({
     deal,
-    analysis: analyzeDeal(deal.property_inputs),
+    analysis: analyzeDeal(deal as unknown as PropertyInputs),
   }));
 
   const portfolioMetrics = {
     totalDeals: deals.length,
     totalValue: portfolioAnalyses.reduce((sum, item) => sum + item.analysis.acquisition.purchase_price, 0),
     totalEquity: portfolioAnalyses.reduce((sum, item) => sum + item.analysis.acquisition.down_payment, 0),
-    totalMonthlyRent: portfolioAnalyses.reduce((sum, item) => sum + item.analysis.revenue.monthly_rent, 0),
+    totalMonthlyRent: portfolioAnalyses.reduce((sum, item) => sum + item.analysis.revenue.gross_monthly_rent, 0),
     totalMonthlyCashFlow: portfolioAnalyses.reduce((sum, item) => sum + item.analysis.cash_flow.monthly_net, 0),
     totalAnnualCashFlow: portfolioAnalyses.reduce((sum, item) => sum + item.analysis.cash_flow.annual_net, 0),
     averageCapRate: portfolioAnalyses.length > 0
@@ -100,8 +100,8 @@ export default function PortfolioPage() {
 
   // Strategy distribution
   const strategyData = portfolioAnalyses.reduce((acc, item) => {
-    const strategy = item.analysis.strategy;
-    const strategyName = strategy === 'buy_and_hold' ? 'Buy & Hold' :
+    const strategy = item.deal.strategy;
+    const strategyName = strategy === 'buy_hold' ? 'Buy & Hold' :
                         strategy === 'brrrr' ? 'BRRRR' :
                         'Fix & Flip';
     const existing = acc.find((d) => d.name === strategyName);
@@ -273,7 +273,7 @@ export default function PortfolioPage() {
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                    label={({ name, percent }) => `${name} (${((percent ?? 0) * 100).toFixed(0)}%)`}
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
@@ -352,10 +352,10 @@ export default function PortfolioPage() {
                 >
                   <div className="flex-1">
                     <p className="font-semibold text-sm">
-                      #{idx + 1} {item.deal.property_inputs.address}
+                      #{idx + 1} {item.deal.address}
                     </p>
                     <p className="text-xs text-gray-600">
-                      {item.deal.property_inputs.city}, {item.deal.property_inputs.province}
+                      {item.deal.city}, {item.deal.province}
                     </p>
                   </div>
                   <div className="text-right">
@@ -390,10 +390,10 @@ export default function PortfolioPage() {
                 >
                   <div className="flex-1">
                     <p className="font-semibold text-sm">
-                      {item.deal.property_inputs.address}
+                      {item.deal.address}
                     </p>
                     <p className="text-xs text-gray-600">
-                      {item.deal.property_inputs.city}, {item.deal.property_inputs.province}
+                      {item.deal.city}, {item.deal.province}
                     </p>
                   </div>
                   <div className="text-right">

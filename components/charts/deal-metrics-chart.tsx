@@ -31,7 +31,7 @@ export function DealMetricsChart({ analysis, type = 'bar' }: DealMetricsChartPro
 
   // Get market cap rate
   const cityKey = (city in MARKET_BENCHMARKS.cap_rates ? city : 'default') as keyof typeof MARKET_BENCHMARKS.cap_rates;
-  const propertyTypeKey = propertyType === 'Single Family' ? 'single_family' : 'multi_unit';
+  const propertyTypeKey = propertyType === 'single_family' ? 'single_family' : 'multi_unit';
   const marketCapRate = MARKET_BENCHMARKS.cap_rates[cityKey]?.[propertyTypeKey] ||
                        MARKET_BENCHMARKS.cap_rates.default[propertyTypeKey];
 

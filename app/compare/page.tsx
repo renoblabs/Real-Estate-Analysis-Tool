@@ -433,14 +433,14 @@ export default function ComparePage() {
                       Total Monthly Expenses
                     </td>
                     {comparisonMetrics.map((item, idx) => {
-                      const value = item.analysis.expenses.total_annual_expenses / 12;
+                      const value = item.analysis.expenses.annual.total / 12;
                       return (
                         <td key={item.deal.id} className="px-6 py-4 text-sm text-gray-700">
                           ${value.toLocaleString()}
                           {idx > 0 && (
                             <ComparisonIndicator
                               value1={value}
-                              value2={comparisonMetrics[0].analysis.expenses.total_annual_expenses / 12}
+                              value2={comparisonMetrics[0].analysis.expenses.annual.total / 12}
                               higherIsBetter={false}
                             />
                           )}

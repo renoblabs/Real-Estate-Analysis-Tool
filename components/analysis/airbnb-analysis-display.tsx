@@ -362,12 +362,12 @@ export function AirbnbAnalysisDisplay({ inputs, analysis }: AirbnbAnalysisDispla
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-600">Annual Rent:</span>
-                <span className="font-medium">${analysis.revenue.annual_rent.toLocaleString()}</span>
+                <span className="font-medium">${analysis.revenue.annual_gross_income.toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Operating Expenses:</span>
                 <span className="font-medium">
-                  -${(analysis.expenses.total_annual_expenses - analysis.expenses.annual_mortgage).toLocaleString()}
+                  -${(analysis.expenses.annual.total - analysis.expenses.annual.mortgage).toLocaleString()}
                 </span>
               </div>
               <div className="flex justify-between pt-2 border-t">
@@ -378,7 +378,7 @@ export function AirbnbAnalysisDisplay({ inputs, analysis }: AirbnbAnalysisDispla
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Mortgage:</span>
-                <span className="font-medium">-${analysis.expenses.annual_mortgage.toLocaleString()}</span>
+                <span className="font-medium">-${analysis.expenses.annual.mortgage.toLocaleString()}</span>
               </div>
               <div className="flex justify-between pt-2 border-t-2 border-gray-300">
                 <span className="font-bold">Annual Cash Flow:</span>
