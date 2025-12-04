@@ -103,12 +103,12 @@ export default function AnalyzePage() {
 
       // Auto-calculate down payment amount when percent changes
       if (field === 'down_payment_percent' && updated.purchase_price) {
-        updated.down_payment_amount = (updated.purchase_price * (value / 100));
+        updated.down_payment_amount = Math.round((updated.purchase_price * (value / 100)) * 100) / 100;
       }
 
       // Auto-calculate down payment percent when amount changes
       if (field === 'down_payment_amount' && updated.purchase_price) {
-        updated.down_payment_percent = (value / updated.purchase_price) * 100;
+        updated.down_payment_percent = Math.round(((value / updated.purchase_price) * 100) * 100) / 100;
       }
 
       return updated;
