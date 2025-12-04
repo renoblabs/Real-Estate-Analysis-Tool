@@ -46,10 +46,10 @@ fi
 echo "✅ Repository ready"
 echo ""
 
-# Check for .env.local
-if [ ! -f ".env.local" ]; then
-    echo "⚙️  Creating .env.local file..."
-    cat > .env.local << 'EOF'
+# Check for .env.production
+if [ ! -f ".env.production" ]; then
+    echo "⚙️  Creating .env.production file..."
+    cat > .env.production << 'EOF'
 # Supabase Configuration
 # Replace these with your actual Supabase credentials
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
@@ -60,14 +60,14 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
 
 # Application
 NODE_ENV=production
-PORT=3000
-NEXT_TELEMETRY_DISABLED=1
+NEXT_PUBLIC_APP_URL=http://tool.reops.therink.io
+NEXT_PUBLIC_APP_NAME="REI OPS"
 EOF
     echo ""
-    echo "⚠️  IMPORTANT: Edit .env.local with your Supabase credentials"
-    echo "   Run: nano $REPO_DIR/.env.local"
+    echo "⚠️  IMPORTANT: Edit .env.production with your Supabase credentials"
+    echo "   Run: nano $REPO_DIR/.env.production"
     echo ""
-    echo "Press Enter when you've updated .env.local (or press Ctrl+C to exit and update later)"
+    echo "Press Enter when you've updated .env.production (or press Ctrl+C to exit and update later)"
     read -r
 fi
 
@@ -76,38 +76,36 @@ echo ""
 
 # Stop any existing containers
 echo "🛑 Stopping existing containers..."
+docker-compose -f docker-compose.prod.yml down 2>/dev/null || true
 docker-compose -f docker-compose.dev.yml down 2>/dev/null || true
 
 # Build and start
 echo "🐳 Building and starting containers..."
-docker-compose -f docker-compose.dev.yml up -d --build
+docker-compose -f docker-compose.prod.yml up -d --build
 
 echo ""
 echo "⏳ Waiting for application to start..."
 sleep 15
 
 # Check if running
-if docker-compose -f docker-compose.dev.yml ps | grep -q "Up"; then
+if docker-compose -f docker-compose.prod.yml ps | grep -q "Up"; then
     echo ""
     echo "✅ ========================================="
     echo "✅ REI OPS™ is now running!"
     echo "✅ ========================================="
     echo ""
     echo "📍 Access your app at:"
-    echo "   🌐 http://boatanchor:3000"
-    echo "   🌐 http://$(hostname -I | awk '{print $1}'):3000"
+    echo "   🌐 http://tool.reops.therink.io (if DNS is configured)"
+    echo "   🌐 http://$(hostname -I | awk '{print $1}')"
     echo ""
     echo "📊 View logs:"
-    echo "   docker-compose -f docker-compose.dev.yml logs -f"
+    echo "   docker-compose -f docker-compose.prod.yml logs -f"
     echo ""
     echo "🛑 Stop the app:"
-    echo "   docker-compose -f docker-compose.dev.yml down"
-    echo ""
-    echo "🔄 Update and restart:"
-    echo "   git pull origin main && docker-compose -f docker-compose.dev.yml up -d --build"
+    echo "   docker-compose -f docker-compose.prod.yml down"
     echo ""
 else
     echo ""
     echo "❌ Something went wrong. Check logs:"
-    echo "   docker-compose -f docker-compose.dev.yml logs"
+    echo "   docker-compose -f docker-compose.prod.yml logs"
 fi
