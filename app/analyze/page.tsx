@@ -33,6 +33,8 @@ export default function AnalyzePage() {
   const [analyzing, setAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<DealAnalysis | MultiFamilyAnalysis | SmallMultifamilyAnalysis | null>(null);
   const [analysisType, setAnalysisType] = useState<AnalysisType>('rental');
+  const [mlsUrl, setMlsUrl] = useState('');
+  const [importing, setImporting] = useState(false);
 
   const [formData, setFormData] = useState<Partial<PropertyInputs | MultiFamilyInputs | SmallMultifamilyInputs>>({
     address: '',
@@ -86,7 +88,7 @@ export default function AnalyzePage() {
   const checkAuth = async () => {
     try {
       const { user, isDemo } = await checkAuthWithDemo();
-      
+
       if (!user && !isDemo) {
         router.push('/login');
       } else {
@@ -94,6 +96,40 @@ export default function AnalyzePage() {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleMLSImport = async () => {
+    setImporting(true);
+    try {
+      const response = await fetch('/api/scrape-listing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: mlsUrl })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to import listing');
+      }
+
+      const data = await response.json();
+
+      // Auto-fill form with scraped data
+      setFormData(prev => ({
+        ...prev,
+        ...data,
+        // Calculate down payment amount if we have price and percent
+        down_payment_amount: data.purchase_price ? Math.round((data.purchase_price * 0.20) * 100) / 100 : prev.down_payment_amount
+      }));
+
+      toast.success('Property details imported successfully!');
+      setMlsUrl(''); // Clear URL input
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to import listing');
+      console.error('Import error:', error);
+    } finally {
+      setImporting(false);
     }
   };
 
@@ -197,6 +233,32 @@ export default function AnalyzePage() {
           </div>
 
           <div className="grid gap-8">
+            {/* MLS URL Auto-Fill */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Start - Import from MLS</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex gap-4">
+                  <Input
+                    placeholder="Paste Realtor.ca listing URL here..."
+                    value={mlsUrl}
+                    onChange={(e) => setMlsUrl(e.target.value)}
+                    className="flex-1"
+                  />
+                  <Button
+                    onClick={handleMLSImport}
+                    disabled={!mlsUrl || importing}
+                  >
+                    {importing ? 'Importing...' : 'Auto-Fill'}
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Supports: Realtor.ca, Zillow, Redfin
+                </p>
+              </CardContent>
+            </Card>
+
             {/* Analysis Type Selection */}
             <Card>
               <CardHeader>
@@ -230,7 +292,7 @@ export default function AnalyzePage() {
 
             {/* Conditional Content Based on Analysis Type */}
             {analysisType === 'deal_sourcing' ? (
-              <DealSourcingDashboard 
+              <DealSourcingDashboard
                 onAnalyzeProperty={(criteria) => {
                   // Handle property analysis with criteria
                   console.log('Analyzing property with criteria:', criteria);
@@ -249,14 +311,14 @@ export default function AnalyzePage() {
                     <ExpensesForm formData={formData} onInputChange={handleInputChange} />
                   </>
                 ) : analysisType === 'small_multifamily' ? (
-                  <SmallMultifamilyForm 
-                    formData={formData as Partial<SmallMultifamilyInputs>} 
-                    onChange={(data) => setFormData(data)} 
+                  <SmallMultifamilyForm
+                    formData={formData as Partial<SmallMultifamilyInputs>}
+                    onChange={(data) => setFormData(data)}
                   />
                 ) : (
-                  <MultiFamilyDevelopmentForm 
-                    formData={formData as Partial<MultiFamilyInputs>} 
-                    onChange={(data) => setFormData(data)} 
+                  <MultiFamilyDevelopmentForm
+                    formData={formData as Partial<MultiFamilyInputs>}
+                    onChange={(data) => setFormData(data)}
                   />
                 )}
 
@@ -268,11 +330,10 @@ export default function AnalyzePage() {
                     size="lg"
                     className="flex-1"
                   >
-                    {analyzing ? 'Analyzing...' : `Analyze ${
-                      analysisType === 'rental' ? 'Rental Property' : 
-                      analysisType === 'small_multifamily' ? 'Small Multifamily' : 
-                      'Development'
-                    }`}
+                    {analyzing ? 'Analyzing...' : `Analyze ${analysisType === 'rental' ? 'Rental Property' :
+                      analysisType === 'small_multifamily' ? 'Small Multifamily' :
+                        'Development'
+                      }`}
                   </Button>
                   <Link href="/dashboard">
                     <Button variant="outline" size="lg">Cancel</Button>
