@@ -76,12 +76,12 @@ echo ""
 
 # Stop any existing containers
 echo "🛑 Stopping existing containers..."
-docker-compose -f docker-compose.prod.yml down 2>/dev/null || true
+docker-compose --env-file .env.production -f docker-compose.prod.yml down 2>/dev/null || true
 docker-compose -f docker-compose.dev.yml down 2>/dev/null || true
 
 # Build and start
 echo "🐳 Building and starting containers..."
-docker-compose -f docker-compose.prod.yml up -d --build
+docker-compose --env-file .env.production -f docker-compose.prod.yml up -d --build
 
 echo ""
 echo "⏳ Waiting for application to start..."
