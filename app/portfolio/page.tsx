@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import type { Deal } from '@/types';
-import { analyzeDeal } from '@/lib/deal-analyzer';
 import { ArrowLeft, TrendingUp, DollarSign, Home, BarChart3, AlertTriangle, Briefcase, Search } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
@@ -13,7 +12,6 @@ import {
   Cell,
   ResponsiveContainer,
   Tooltip,
-  Legend,
   BarChart,
   Bar,
   XAxis,
@@ -518,10 +516,9 @@ export default function PortfolioPage() {
                 </div>
               </div>
             </div>
-          </div>
-      </>
-      )}
+          </>
+        )}
+      </div>
     </div>
-    </div >
   );
 }

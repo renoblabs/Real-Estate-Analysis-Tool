@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alert Investigation Report</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; background-color: #fff; max-width: 1200px; margin: 0 auto; padding: 20px; }
+    h1, h2, h3 { margin-top: 1.5em; margin-bottom: 0.5em; page-break-after: avoid; }
+    h1 { font-size: 24px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+    h2 { font-size: 20px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+    .header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 3px solid #eee; padding-bottom: 15px; }
+    .header-left { flex: 1; }
+    .header-right { flex: 1; text-align: right; }
+    .severity-badge { display: inline-block; padding: 5px 10px; border-radius: 4px; font-weight: bold; margin-bottom: 10px; }
+    .sev-3 { background-color: #f7e58d; color: #333; }
+    .section { margin-bottom: 30px; page-break-inside: avoid; }
+    pre { background-color: #f5f5f5; border: 1px solid #ddd; border-radius: 4px; padding: 10px; overflow-x: auto; font-family: 'Courier New', Courier, monospace; font-size: 14px; page-break-inside: avoid; }
+    details { margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; padding: 10px; background-color: #f9f9f9; }
+    summary { font-weight: bold; cursor: pointer; }
+    .timeline { margin-left: 20px; }
+    .timeline-item { margin-bottom: 15px; position: relative; }
+    .timeline-time { font-weight: bold; margin-right: 10px; }
+    .timeline-content { margin-left: 10px; }
+    .fix-steps { list-style-type: decimal; padding-left: 20px; }
+    .fix-step { margin-bottom: 15px; }
+    .footer { margin-top: 40px; border-top: 1px solid #eee; padding-top: 10px; font-size: 12px; color: #777; text-align: center; }
+  </style>
+  </head>
+<body>
+  <div class="header" id="header">
+    <div class="header-left">
+      <h1>Alert Investigation — Next.js Turbopack parse failure on Portfolio page</h1>
+      <div>
+        <span class="severity-badge sev-3">SEV-3</span>
+        <span>Started: <span id="start-time">N/A</span></span>
+      </div>
+    </div>
+    <div class="header-right">
+      <div>On-call: <strong id="oncall-engineer">Mark Lambie</strong></div>
+    </div>
+  </div>
+
+  <div class="section" id="exec-summary">
+    <h2>Executive Summary</h2>
+    <p>Turbopack failed to parse <code>app/portfolio/page.tsx</code> due to an unclosed JSX Fragment inside a ternary expression and stray literal backticks (<code>`r`n</code>) near the end of the file. This blocked the build. The file was corrected by properly closing the Fragment before the ternary ends and removing the stray characters.</p>
+  </div>
+
+  <div class="section" id="rca">
+    <h2>Root Cause Analysis</h2>
+    <div>
+      <ul>
+        <li><strong>Primary Hypothesis:</strong> Unclosed JSX Fragment in the <em>has deals</em> branch of a ternary caused the parser to encounter a closing <code>div</code> where a Fragment close <code>&lt;/&gt;</code> was expected.</li>
+        <li><strong>Contributing Factors:</strong> Stray literal <code>`r`n</code> sequences were present at the end of the file, further breaking parsing.</li>
+      </ul>
+
+      <h3>Evidence</h3>
+      <h4>Build Error</h4>
+      <pre>error: Turbopack build failed with 1 errors:
+./app/portfolio/page.tsx:521:13 Parsing ecmascript source code failed
+Expected '</', got 'div'</pre>
+
+      <h4>Code Reference</h4>
+      <p>Fixed: closed the Fragment before the ternary's closing parenthesis and removed stray <code>`r`n</code>.</p>
+    </div>
+  </div>
+
+  <div class="section" id="fix-proposal">
+    <h2>Proposed Fix</h2>
+    <ol class="fix-steps">
+      <li class="fix-step">
+        <strong>Immediate Mitigation:</strong> Update <code>app/portfolio/page.tsx</code> to close the Fragment and remove stray characters.
+        <div>Validation: File compiles locally; grep shows no remaining <code>`r`n</code> literals.</div>
+      </li>
+      <li class="fix-step">
+        <strong>Short-term Fix:</strong> Remove unused imports (e.g., <code>analyzeDeal</code>, <code>Legend</code>) to avoid lint failures in CI.
+        <div>Validation: Lint should pass with <code>eslint --max-warnings 0</code>.</div>
+      </li>
+      <li class="fix-step">
+        <strong>Long-term Solution:</strong> Add a CI step to run <code>npm run type-check</code> and <code>npm run lint</code> to catch JSX/TS issues before merging.
+        <div>Validation: CI builds remain green on PRs.</div>
+      </li>
+    </ol>
+  </div>
+
+  <div class="section" id="timeline">
+    <h2>Incident Timeline</h2>
+    <div class="timeline">
+      <div class="timeline-item">
+        <span class="timeline-time">T0</span>
+        <div class="timeline-content">
+          Build fails with Turbopack parse error on <code>app/portfolio/page.tsx</code>.
+        </div>
+      </div>
+      <div class="timeline-item">
+        <span class="timeline-time">T0+X</span>
+        <div class="timeline-content">
+          Fragment closure and stray characters corrected; file compiles.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Generated: <span id="generation-date">2025-12-05</span></p>
+  </div>
+</body>
+</html>
