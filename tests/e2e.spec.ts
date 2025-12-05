@@ -1,21 +1,8 @@
 import { test, expect } from '@playwright/test';
 
-test.describe.configure({ mode: 'serial' }); // Run tests in order, sharing state if needed
+test.describe.configure({ mode: 'serial' });
 
 let userEmail: string;
-
-test.beforeAll(async ({ browser }) => {
-    // Optional: Create a context if we wanted to reuse it across tests, 
-    // but Playwright creates a fresh context per test by default.
-    // To share auth state, we can use storageState, or just sign up in a setup step 
-    // and save the state, or sign up in a beforeEach.
-    // For simplicity in this "gauntlet", let's just sign up once in the first test 
-    // and use that state, OR sign up in every test (slower but isolated).
-
-    // Actually, let's use a "setup" test pattern or just put the signup in a beforeEach 
-    // if we want isolation, but that spams the DB.
-    // Let's do a single flow test for now: Signup -> Analyze -> Portfolio
-});
 
 test('Complete User Flow: Signup -> Analyze -> Portfolio', async ({ page }) => {
     // 1. Sign Up
@@ -33,29 +20,42 @@ test('Complete User Flow: Signup -> Analyze -> Portfolio', async ({ page }) => {
 
     // Wait for success message or redirect
     await expect(page.getByText('Account created successfully!')).toBeVisible({ timeout: 10000 });
-
-    // Wait for redirect to dashboard
     await page.waitForURL('**/dashboard', { timeout: 10000 });
 
-    // 2. Test Analyze Page (Repliers Integration)
+    // 2. Test Analyze Page (Repliers Integration & Create Deal)
     console.log('Testing Analyze Page...');
     await page.goto('/analyze');
 
     // Check for the Data Source dropdown
     await expect(page.getByText('Quick Start - Import from MLS')).toBeVisible();
 
-    // Check if Repliers option is available (it's in a Select, so we might need to open it to see the option, 
-    // but the label "Data Source" should be visible)
-    await expect(page.getByLabel('Data Source')).toBeVisible();
+    // Fill out the form to create a deal
+    console.log('Filling out analysis form...');
+    await page.fill('input[id="address"]', '123 Test St');
+    await page.fill('input[id="city"]', 'Test City');
+
+    // We need to scroll or ensure elements are visible, but Playwright auto-scrolls.
+    // Purchase Price is likely in PurchaseFinancingForm
+    // We assume the ID is purchase_price. If it's not, we might fail, but let's try.
+    await page.fill('input[id="purchase_price"]', '500000');
+
+    // Monthly Rent in RevenueForm
+    await page.fill('input[id="monthly_rent"]', '3000');
+
+    // Click Analyze
+    console.log('Submitting analysis...');
+    await page.click('button:has-text("Analyze Rental Property")');
+
+    // Wait for success toast
+    await expect(page.getByText('Deal analyzed and saved successfully!')).toBeVisible({ timeout: 10000 });
 
     // 3. Test Portfolio Page (Tabs)
     console.log('Testing Portfolio Page...');
     await page.goto('/portfolio');
 
-    // Check initial state (Pipeline tab active by default)
-    // Note: Radix UI tabs use role="tab"
+    // Now that we have a deal, the tabs should be visible!
     const pipelineTab = page.getByRole('tab', { name: 'Pipeline' });
-    const portfolioTab = page.getByRole('tab', { name: 'Portfolio' }); // or "Owned Properties" depending on text
+    const portfolioTab = page.getByRole('tab', { name: 'Portfolio' });
 
     await expect(pipelineTab).toBeVisible();
     await expect(pipelineTab).toHaveAttribute('data-state', 'active');
