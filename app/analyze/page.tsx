@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { createClient } from '@/lib/supabase/client';
 import { analyzeDeal } from '@/lib/deal-analyzer';
 import { saveDeal } from '@/lib/database';
