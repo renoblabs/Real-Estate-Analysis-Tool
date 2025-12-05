@@ -29,18 +29,31 @@ test('Complete User Flow: Signup -> Analyze -> Portfolio', async ({ page }) => {
     // Check for the Data Source dropdown
     await expect(page.getByText('Quick Start - Import from MLS')).toBeVisible();
 
-    // Fill out the form to create a deal
-    console.log('Filling out analysis form...');
-    await page.fill('input[id="address"]', '123 Test St');
-    await page.fill('input[id="city"]', 'Test City');
+    // Test Repliers Import with MLS X12605850
+    console.log('Testing Repliers Import with MLS X12605850...');
 
-    // We need to scroll or ensure elements are visible, but Playwright auto-scrolls.
-    // Purchase Price is likely in PurchaseFinancingForm
-    // We assume the ID is purchase_price. If it's not, we might fail, but let's try.
-    await page.fill('input[id="purchase_price"]', '500000');
+    // Enter MLS Number
+    await page.fill('input[placeholder*="Enter MLS Number"]', 'X12605850');
 
+    // Click Auto-Fill
+    await page.click('button:has-text("Auto-Fill")');
+
+    // Wait for success toast
+    await expect(page.getByText('Property details imported successfully')).toBeVisible({ timeout: 15000 });
+
+    // Verify fields are populated
+    const addressValue = await page.inputValue('input[id="address"]');
+    console.log(`Imported Address: ${addressValue}`);
+    expect(addressValue).not.toBe('');
+
+    const priceValue = await page.inputValue('input[id="purchase_price"]');
+    console.log(`Imported Price: ${priceValue}`);
+    expect(priceValue).not.toBe('');
+    expect(priceValue).not.toBe('0');
+
+    // Fill remaining required fields if any are missing (e.g. rent might not be in MLS)
     // Monthly Rent in RevenueForm
-    await page.fill('input[id="monthly_rent"]', '3000');
+    await page.fill('input[id="monthly_rent"]', '3000'); // Ensure rent is set even if imported
 
     // Click Analyze
     console.log('Submitting analysis...');
