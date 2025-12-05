@@ -56,22 +56,42 @@ export async function GET(request: NextRequest) {
             );
         }
 
+        // Helper to map Repliers property type to our internal type
+        const mapPropertyType = (type: string): string => {
+            const t = type?.toLowerCase() || '';
+            if (t.includes('duplex')) return 'duplex';
+            if (t.includes('triplex')) return 'triplex';
+            if (t.includes('fourplex')) return 'fourplex';
+            if (t.includes('multi')) return 'multi_unit_5plus';
+            return 'single_family'; // Default fallback
+        };
+
+        // Helper to parse price/numbers safely
+        const parseNumber = (val: any): number => {
+            if (typeof val === 'number') return val;
+            if (typeof val === 'string') {
+                const clean = val.replace(/[$,\s]/g, '');
+                return parseFloat(clean) || 0;
+            }
+            return 0;
+        };
+
         // Map Repliers data to our property format
         const mappedData = {
             address: listing.address?.streetAddress || '',
             city: listing.address?.city || '',
-            province: listing.address?.state || listing.address?.province || '',
+            province: listing.address?.state || listing.address?.province || 'ON', // Default to ON if missing
             postal_code: listing.address?.zip || listing.address?.postalCode || '',
-            property_type: listing.property?.type || '',
-            bedrooms: listing.property?.bedrooms || 0,
-            bathrooms: listing.property?.bathrooms || 0,
-            square_feet: listing.property?.area || listing.property?.livingArea || 0,
-            lot_size: listing.lot?.lotSizeArea || 0,
-            year_built: listing.property?.yearBuilt || null,
-            purchase_price: listing.listPrice || 0,
-            monthly_rent: listing.estimatedRent || 0, // If available
-            property_tax: listing.tax?.annualAmount || 0,
-            hoa_fees: listing.association?.fee || 0,
+            property_type: mapPropertyType(listing.property?.type),
+            bedrooms: parseNumber(listing.property?.bedrooms),
+            bathrooms: parseNumber(listing.property?.bathrooms),
+            square_feet: parseNumber(listing.property?.area || listing.property?.livingArea),
+            lot_size: parseNumber(listing.lot?.lotSizeArea),
+            year_built: parseNumber(listing.property?.yearBuilt),
+            purchase_price: parseNumber(listing.listPrice),
+            monthly_rent: parseNumber(listing.estimatedRent), // If available
+            property_tax_annual: parseNumber(listing.tax?.annualAmount),
+            hoa_fees: parseNumber(listing.association?.fee),
             images: listing.photos?.map((photo: any) => photo.href) || [],
             description: listing.remarks || listing.publicRemarks || '',
             mls_number: listing.mlsId || listing.listingId || '',
