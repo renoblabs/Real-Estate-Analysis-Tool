@@ -29,11 +29,11 @@ test('Complete User Flow: Signup -> Analyze -> Portfolio', async ({ page }) => {
     // Check for the Data Source dropdown
     await expect(page.getByText('Quick Start - Import from MLS')).toBeVisible();
 
-    // Test Repliers Import with MLS X12605850
-    console.log('Testing Repliers Import with MLS X12605850...');
+    // Test Repliers Import with MLS X12531322 (103 Main St E)
+    console.log('Testing Repliers Import with MLS X12531322...');
 
     // Enter MLS Number
-    await page.fill('input[placeholder*="Enter MLS Number"]', 'X12605850');
+    await page.fill('input[placeholder*="Enter MLS Number"]', 'X12531322');
 
     // Click Auto-Fill
     await page.click('button:has-text("Auto-Fill")');
@@ -45,15 +45,17 @@ test('Complete User Flow: Signup -> Analyze -> Portfolio', async ({ page }) => {
     const addressValue = await page.inputValue('input[id="address"]');
     console.log(`Imported Address: ${addressValue}`);
     expect(addressValue).not.toBe('');
+    // Verify it matches the expected property
+    expect(addressValue.toLowerCase()).toContain('main');
 
     const priceValue = await page.inputValue('input[id="purchase_price"]');
     console.log(`Imported Price: ${priceValue}`);
     expect(priceValue).not.toBe('');
     expect(priceValue).not.toBe('0');
 
-    // Fill remaining required fields if any are missing (e.g. rent might not be in MLS)
-    // Monthly Rent in RevenueForm
-    await page.fill('input[id="monthly_rent"]', '3000'); // Ensure rent is set even if imported
+    // Fill remaining required fields if any are missing
+    // Monthly Rent in RevenueForm (Estimate for test)
+    await page.fill('input[id="monthly_rent"]', '2500');
 
     // Click Analyze
     console.log('Submitting analysis...');
