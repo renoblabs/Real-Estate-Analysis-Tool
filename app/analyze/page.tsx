@@ -35,6 +35,8 @@ export default function AnalyzePage() {
   const [analysis, setAnalysis] = useState<DealAnalysis | MultiFamilyAnalysis | SmallMultifamilyAnalysis | null>(null);
   const [analysisType, setAnalysisType] = useState<AnalysisType>('rental');
   const [mlsUrl, setMlsUrl] = useState('');
+  const [mlsNumber, setMlsNumber] = useState('');
+  const [importSource, setImportSource] = useState<'realtor' | 'repliers'>('repliers');
   const [importing, setImporting] = useState(false);
 
   const [formData, setFormData] = useState<Partial<PropertyInputs | MultiFamilyInputs | SmallMultifamilyInputs>>({
@@ -103,20 +105,37 @@ export default function AnalyzePage() {
   const handleMLSImport = async () => {
     setImporting(true);
     try {
-      const response = await fetch('/api/scrape-listing', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: mlsUrl })
-      });
+      let response;
+
+      if (importSource === 'repliers') {
+        // Use Repliers.io API
+        if (!mlsNumber) {
+          throw new Error('Please enter an MLS number');
+        }
+
+        response = await fetch(`/api/repliers?mlsNumber=${encodeURIComponent(mlsNumber)}`);
+      } else {
+        // Use Realtor.ca scraper
+        if (!mlsUrl) {
+          throw new Error('Please enter a Realtor.ca URL');
+        }
+
+        response = await fetch('/api/scrape-listing', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: mlsUrl })
+        });
+      }
 
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || 'Failed to import listing');
       }
 
-      const data = await response.json();
+      const result = await response.json();
+      const data = result.data || result;
 
-      // Auto-fill form with scraped data
+      // Auto-fill form with imported data
       setFormData(prev => ({
         ...prev,
         ...data,
@@ -124,8 +143,9 @@ export default function AnalyzePage() {
         down_payment_amount: data.purchase_price ? Math.round((data.purchase_price * 0.20) * 100) / 100 : prev.down_payment_amount
       }));
 
-      toast.success('Property details imported successfully!');
+      toast.success(`Property details imported successfully from ${importSource === 'repliers' ? 'Repliers.io' : 'Realtor.ca'}!`);
       setMlsUrl(''); // Clear URL input
+      setMlsNumber(''); // Clear MLS number input
     } catch (error: any) {
       toast.error(error.message || 'Failed to import listing');
       console.error('Import error:', error);
@@ -240,23 +260,54 @@ export default function AnalyzePage() {
                 <CardTitle>Quick Start - Import from MLS</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex gap-4">
-                  <Input
-                    placeholder="Paste Realtor.ca listing URL here..."
-                    value={mlsUrl}
-                    onChange={(e) => setMlsUrl(e.target.value)}
-                    className="flex-1"
-                  />
-                  <Button
-                    onClick={handleMLSImport}
-                    disabled={!mlsUrl || importing}
-                  >
-                    {importing ? 'Importing...' : 'Auto-Fill'}
-                  </Button>
+                <div className="space-y-4">
+                  {/* Source Selector */}
+                  <div>
+                    <Label htmlFor="import_source">Data Source</Label>
+                    <Select
+                      value={importSource}
+                      onValueChange={(value: 'realtor' | 'repliers') => setImportSource(value)}
+                    >
+                      <SelectTrigger id="import_source">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="repliers">Repliers.io (Canadian MLS)</SelectItem>
+                        <SelectItem value="realtor">Realtor.ca (Scraper)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Conditional Input */}
+                  <div className="flex gap-4">
+                    {importSource === 'repliers' ? (
+                      <Input
+                        placeholder="Enter MLS Number (e.g., 12345678)..."
+                        value={mlsNumber}
+                        onChange={(e) => setMlsNumber(e.target.value)}
+                        className="flex-1"
+                      />
+                    ) : (
+                      <Input
+                        placeholder="Paste Realtor.ca listing URL here..."
+                        value={mlsUrl}
+                        onChange={(e) => setMlsUrl(e.target.value)}
+                        className="flex-1"
+                      />
+                    )}
+                    <Button
+                      onClick={handleMLSImport}
+                      disabled={(importSource === 'repliers' ? !mlsNumber : !mlsUrl) || importing}
+                    >
+                      {importing ? 'Importing...' : 'Auto-Fill'}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {importSource === 'repliers'
+                      ? 'Uses Repliers.io API for accurate Canadian MLS data'
+                      : 'Scrapes listing data from Realtor.ca'}
+                  </p>
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Supports: Realtor.ca, Zillow, Redfin
-                </p>
               </CardContent>
             </Card>
 
