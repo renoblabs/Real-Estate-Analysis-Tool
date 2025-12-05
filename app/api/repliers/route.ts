@@ -49,6 +49,8 @@ export async function GET(request: NextRequest) {
         // If searching by MLS number, the response might be an array
         const listing = Array.isArray(data) ? data[0] : data;
 
+        console.log('Repliers Raw Listing Data:', JSON.stringify(listing, null, 2));
+
         if (!listing) {
             return NextResponse.json(
                 { error: 'Listing not found' },
