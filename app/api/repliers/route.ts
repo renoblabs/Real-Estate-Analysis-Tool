@@ -78,11 +78,22 @@ export async function GET(request: NextRequest) {
             return 0;
         };
 
+        // Helper to format address from parts if full address is missing
+        const formatAddress = (addr: any): string => {
+            if (!addr) return '';
+            if (addr.streetAddress) return addr.streetAddress;
+            if (addr.streetNumber && addr.streetName) {
+                return `${addr.streetNumber} ${addr.streetName} ${addr.streetSuffix || ''}`.trim();
+            }
+            if (addr.address) return addr.address;
+            return '';
+        };
+
         // Map Repliers data to our property format
         const mappedData = {
-            address: listing.address?.streetAddress || '',
+            address: formatAddress(listing.address),
             city: listing.address?.city || '',
-            province: listing.address?.state || listing.address?.province || 'ON', // Default to ON if missing
+            province: listing.address?.state || listing.address?.province || 'ON',
             postal_code: listing.address?.zip || listing.address?.postalCode || '',
             property_type: mapPropertyType(listing.property?.type),
             bedrooms: parseNumber(listing.property?.bedrooms),
