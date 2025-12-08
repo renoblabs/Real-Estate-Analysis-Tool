@@ -1,12 +1,10 @@
 # REI OPS™ 🇨🇦
 
-**The Only Investment Analysis Platform Built for Canadian Real Estate**
+**Investment Analysis Platform Built for Canadian Real Estate**
 
 [![Production Ready](https://img.shields.io/badge/status-production%20ready-success)](https://github.com/renoblabs/Real-Estate-Analysis-Tool)
 [![TypeScript](https://img.shields.io/badge/TypeScript-100%25-blue)](https://www.typescriptlang.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
-
-REI OPS™ is a comprehensive real estate investment analysis tool designed specifically for the Canadian market, with accurate calculations for CMHC insurance, provincial land transfer taxes, OSFI B-20 stress tests, and regional market intelligence.
 
 ---
 
