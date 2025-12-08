@@ -1,0 +1,74 @@
+
+> rei-ops@0.1.0 test:e2e
+> playwright test tests/103-main-st.spec.ts
+
+
+Running 3 tests using 3 workers
+
+[1A[2K[1/3] [chromium] › tests/103-main-st.spec.ts:177:9 › 103 Main St E Property Analysis › Verify specific calculations for 103 Main St
+[1A[2K[2/3] [chromium] › tests/103-main-st.spec.ts:14:9 › 103 Main St E Property Analysis › Complete workflow: Signup → Analyze → Verify Calculations
+[1A[2K[3/3] [chromium] › tests/103-main-st.spec.ts:220:9 › 103 Main St E Property Analysis › Test deal status workflow
+[1A[2K[chromium] › tests/103-main-st.spec.ts:177:9 › 103 Main St E Property Analysis › Verify specific calculations for 103 Main St
+🧮 Testing calculation accuracy...
+
+[1A[2K[chromium] › tests/103-main-st.spec.ts:14:9 › 103 Main St E Property Analysis › Complete workflow: Signup → Analyze → Verify Calculations
+🧪 Testing with user: test-103main-1765232210104@test.com
+
+[1A[2K📝 Step 1: Creating account...
+
+[1A[2K[chromium] › tests/103-main-st.spec.ts:220:9 › 103 Main St E Property Analysis › Test deal status workflow
+📋 Testing deal status workflow...
+
+[1A[2K⚠️  103 Main St deal not found - run main test first
+
+[1A[2K  1) [chromium] › tests/103-main-st.spec.ts:14:9 › 103 Main St E Property Analysis › Complete workflow: Signup → Analyze → Verify Calculations 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText('Account created successfully!')
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 10000ms[22m
+    [2m  - waiting for getByText('Account created successfully!')[22m
+
+
+      29 |
+      30 |         // Wait for redirect to dashboard
+    > 31 |         await expect(page.getByText('Account created successfully!')).toBeVisible({ timeout: 10000 });
+         |                                                                       ^
+      32 |         await page.waitForURL('**/dashboard', { timeout: 10000 });
+      33 |         console.log('✅ Account created');
+      34 |
+        at /home/user/Real-Estate-Analysis-Tool/tests/103-main-st.spec.ts:31:71
+
+    Error Context: test-results/103-main-st-103-Main-St-E--0face-alyze-→-Verify-Calculations-chromium/error-context.md
+
+
+[1A[2K  2) [chromium] › tests/103-main-st.spec.ts:177:9 › 103 Main St E Property Analysis › Verify specific calculations for 103 Main St 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: page.fill: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[id="address"]')[22m
+
+
+      184 |
+      185 |         // Fill in data quickly (can reuse from above)
+    > 186 |         await page.fill('input[id="address"]', '103 Main Street E');
+          |                    ^
+      187 |         await page.fill('input[id="city"]', 'Port Colborne');
+      188 |         await page.fill('input[id="purchase_price"]', '299900');
+      189 |         await page.fill('input[id="down_payment_percent"]', '20');
+        at /home/user/Real-Estate-Analysis-Tool/tests/103-main-st.spec.ts:186:20
+
+    Error Context: test-results/103-main-st-103-Main-St-E--94f58-alculations-for-103-Main-St-chromium/error-context.md
+
+
+[1A[2K  2 failed
+    [chromium] › tests/103-main-st.spec.ts:14:9 › 103 Main St E Property Analysis › Complete workflow: Signup → Analyze → Verify Calculations 
+    [chromium] › tests/103-main-st.spec.ts:177:9 › 103 Main St E Property Analysis › Verify specific calculations for 103 Main St 
+  1 passed (32.5s)
