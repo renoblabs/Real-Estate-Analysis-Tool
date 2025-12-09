@@ -284,19 +284,19 @@ function calculateExpenses(
  * Calculate cash flow
  */
 function calculateCashFlow(revenue: Revenue, expenses: Expenses): CashFlow {
-  const monthly_net = revenue.effective_monthly_income - expenses.monthly.total;
-  const annual_net = monthly_net * 12;
+  const monthly_cash_flow = revenue.effective_monthly_income - expenses.monthly.total;
+  const annual_cash_flow = monthly_cash_flow * 12;
 
   // NOI = Net Operating Income (before debt service)
-  const monthly_before_debt =
+  const monthly_noi =
     revenue.effective_monthly_income -
     (expenses.monthly.total - expenses.monthly.mortgage);
-  const annual_noi = monthly_before_debt * 12;
+  const annual_noi = monthly_noi * 12;
 
   return {
-    monthly_net,
-    annual_net,
-    monthly_before_debt,
+    monthly_cash_flow,
+    annual_cash_flow,
+    monthly_noi,
     annual_noi
   };
 }
@@ -319,7 +319,7 @@ function calculateMetrics(
   // Cash-on-Cash Return = Annual Cash Flow / Total Cash Invested
   const total_cash_invested = acquisition.total_acquisition_cost;
   const cash_on_cash_return = total_cash_invested > 0
-    ? (cash_flow.annual_net / total_cash_invested) * 100
+    ? (cash_flow.annual_cash_flow / total_cash_invested) * 100
     : 0;
 
   // DSCR = NOI / Annual Debt Service
@@ -404,7 +404,7 @@ function calculateBRRRR(
 
   // Cash flow after refinance (simplified - assumes same rent/expenses)
   const cash_flow_after_refi =
-    cash_flow.monthly_net -
+    cash_flow.monthly_cash_flow -
     (new_monthly_payment - financing.monthly_payment);
 
   // Effective CoC return
@@ -482,7 +482,7 @@ function generateWarningsAndFlags(
   const warnings: string[] = [];
 
   const flags: DealFlags = {
-    negative_cash_flow: cash_flow.monthly_net < 0,
+    negative_cash_flow: cash_flow.monthly_cash_flow < 0,
     low_dscr: metrics.dscr < 1.2,
     below_market_cap_rate: metrics.cap_rate < market_comparison.market_avg_cap_rate,
     high_ltv: inputs.down_payment_percent < 20,
@@ -491,7 +491,7 @@ function generateWarningsAndFlags(
 
   // Generate warnings based on flags
   if (flags.negative_cash_flow) {
-    warnings.push(`⚠️ Negative cash flow: -$${Math.abs(cash_flow.monthly_net).toFixed(2)}/mo`);
+    warnings.push(`⚠️ Negative cash flow: -$${Math.abs(cash_flow.monthly_cash_flow).toFixed(2)}/mo`);
   }
 
   if (flags.low_dscr) {

@@ -11,17 +11,17 @@ export function calculateDealScore(analysis: DealAnalysis): DealScoring {
   const reasons: string[] = [];
 
   // Cash Flow (max 30 points)
-  if (analysis.cash_flow.monthly_net > 500) {
+  if (analysis.cash_flow.monthly_cash_flow > 500) {
     score += 30;
-    reasons.push(`✅ Strong positive cash flow ($${analysis.cash_flow.monthly_net.toFixed(0)}/mo)`);
-  } else if (analysis.cash_flow.monthly_net > 200) {
+    reasons.push(`✅ Strong positive cash flow ($${analysis.cash_flow.monthly_cash_flow.toFixed(0)}/mo)`);
+  } else if (analysis.cash_flow.monthly_cash_flow > 200) {
     score += 20;
-    reasons.push(`✅ Moderate cash flow ($${analysis.cash_flow.monthly_net.toFixed(0)}/mo)`);
-  } else if (analysis.cash_flow.monthly_net > 0) {
+    reasons.push(`✅ Moderate cash flow ($${analysis.cash_flow.monthly_cash_flow.toFixed(0)}/mo)`);
+  } else if (analysis.cash_flow.monthly_cash_flow > 0) {
     score += 10;
-    reasons.push(`⚠️ Marginal cash flow ($${analysis.cash_flow.monthly_net.toFixed(0)}/mo)`);
+    reasons.push(`⚠️ Marginal cash flow ($${analysis.cash_flow.monthly_cash_flow.toFixed(0)}/mo)`);
   } else {
-    reasons.push(`❌ Negative cash flow ($${analysis.cash_flow.monthly_net.toFixed(0)}/mo)`);
+    reasons.push(`❌ Negative cash flow ($${analysis.cash_flow.monthly_cash_flow.toFixed(0)}/mo)`);
   }
 
   // Cash-on-Cash Return (max 25 points)

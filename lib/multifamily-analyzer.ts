@@ -32,7 +32,7 @@ export async function analyzeMultiFamilyDevelopment(inputs: MultiFamilyInputs): 
       inputs,
       development_analysis,
       market_analysis,
-      base_analysis.cash_flow.annual_net,
+      base_analysis.cash_flow.annual_cash_flow,
       total_investment
     );
     
@@ -374,11 +374,11 @@ export function generateExecutiveSummary(analysis: MultiFamilyAnalysis): {
   let recommendation: 'proceed' | 'proceed_with_caution' | 'do_not_proceed';
   
   if (risk_assessment.overall_risk_score <= 4 && 
-      analysis.cash_flow.annual_net > 0 && 
+      analysis.cash_flow.annual_cash_flow > 0 && 
       profitability_gaps.roi_gap.gap_amount <= 0) {
     recommendation = 'proceed';
   } else if (risk_assessment.overall_risk_score <= 6 && 
-             analysis.cash_flow.annual_net > -10000) {
+             analysis.cash_flow.annual_cash_flow > -10000) {
     recommendation = 'proceed_with_caution';
   } else {
     recommendation = 'do_not_proceed';
@@ -390,7 +390,7 @@ export function generateExecutiveSummary(analysis: MultiFamilyAnalysis): {
     'Cost per Unit': `$${development_analysis.cost_per_unit.toLocaleString()}`,
     'Cost per Sq Ft': `$${development_analysis.cost_per_sqft.toFixed(0)}`,
     'Timeline': `${development_analysis.timeline_months} months`,
-    'Annual Cash Flow': `$${analysis.cash_flow.annual_net.toLocaleString()}`,
+    'Annual Cash Flow': `$${analysis.cash_flow.annual_cash_flow.toLocaleString()}`,
     'Cash-on-Cash Return': `${(analysis.metrics.cash_on_cash_return * 100).toFixed(1)}%`,
     'Market Score': `${market_analysis.overall_market_score}/10`,
     'Risk Level': risk_assessment.risk_level

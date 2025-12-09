@@ -240,7 +240,7 @@ export function calculateAdvancedMetrics(
   for (let year = 0; year < assumptions.hold_period_years; year++) {
     // Exclude sale proceeds from final year CoC
     const yearCashFlow = year === assumptions.hold_period_years - 1
-      ? cashFlows[year] - (cashFlows[year] - analysis.cash_flow.annual_net)
+      ? cashFlows[year] - (cashFlows[year] - analysis.cash_flow.annual_cash_flow)
       : cashFlows[year];
     coc_progression.push((yearCashFlow / initialInvestment) * 100);
   }
