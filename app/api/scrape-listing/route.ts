@@ -11,9 +11,20 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Validate URL is from a supported site
+        // Validate URL is from a supported site (prevent SSRF)
         const supportedSites = ['realtor.ca', 'zillow.com', 'redfin.com'];
-        const isSupported = supportedSites.some(site => url.includes(site));
+        let isSupported = false;
+        try {
+            const urlObj = new URL(url);
+            isSupported = supportedSites.some(site =>
+                urlObj.hostname === site || urlObj.hostname.endsWith('.' + site)
+            );
+        } catch (e) {
+            return NextResponse.json(
+                { error: 'Invalid URL format' },
+                { status: 400 }
+            );
+        }
 
         if (!isSupported) {
             return NextResponse.json(
