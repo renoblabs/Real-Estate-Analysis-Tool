@@ -185,7 +185,15 @@ See [SETUP.md](SETUP.md) for detailed instructions.
 
 ## 🎯 Key Features
 
-### v2.0 (Current)
+### v3.0 (Current) - Canadian Market Differentiators
+✅ **ACRE™ Property Analyzer** - Don Campbell's scoring system (auto-integrated)
+✅ **Mortgage Qualification Calculator** - GDS/TDS with OSFI B-20 stress test
+✅ **ADU Opportunity Analyzer** - Signal detection + profit calculator + funding stack
+✅ **Provincial ADU Database** - Regulations for ON, BC, AB, NS, QC
+✅ **Municipal Hotspots** - ADU-friendly cities across Canada
+✅ **Funding Stack Analyzer** - Federal, provincial, and municipal programs
+
+### v2.0
 ✅ Complete CRUD for deals
 ✅ Advanced filtering & sorting
 ✅ Deal detail views

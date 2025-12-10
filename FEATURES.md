@@ -1,8 +1,63 @@
 # REI OPS™ - Complete Feature List
 
-## 🎉 PHASE 2 COMPLETE - Production-Grade Platform
+## 🎉 PHASE 3 COMPLETE - Canadian Real Estate Investment Platform
 
-All core features plus production-grade engineering additions have been implemented.
+All core features plus three major differentiating analyzers for the Canadian market.
+
+---
+
+## 🌟 KEY DIFFERENTIATORS (NEW in v3.0)
+
+### 1. **ACRE™ Property Analyzer** (`/analyze/acre`)
+Based on Don R. Campbell's proven ACRE scoring system for Canadian real estate.
+
+- **Four Scoring Dimensions**:
+  - Cash Flow (40%): Rent-to-price ratio, NOI analysis
+  - Location (30%): Population growth, employment, infrastructure
+  - Appreciation (20%): Market trends, historical data
+  - Risk Assessment (10%): DSCR, vacancy, market stability
+- **Output**: 0-100 ACRE score with grade (A+ to F)
+- **Recommendations**: STRONG BUY / CONSIDER / CAUTION / AVOID
+- **Auto-Integration**: Every deal analysis includes ACRE score automatically
+- **Market Insights**: Provincial and city-specific data for major Canadian markets
+- **Status**: ✅ **COMPLETE**
+
+### 2. **Mortgage Qualification Calculator** (`/mortgage-qualification`)
+Canadian-specific mortgage qualification with OSFI B-20 stress testing.
+
+- **GDS/TDS Ratios**: Calculate Gross/Total Debt Service ratios
+- **Stress Test**: Automatically applies contract rate + 2% or 5.25% floor
+- **Lender Matching**:
+  - A-Lender (Prime): GDS < 39%, TDS < 44%, Credit ≥ 680
+  - B-Lender (Alt-A): GDS < 42%, TDS < 50%, Credit ≥ 600
+  - Private: Flexible ratios, equity-focused
+- **Max Borrowing Power**: Binary search algorithm to find maximum purchase price
+- **Affordability Check**: Quick property affordability assessment
+- **Status**: ✅ **COMPLETE**
+
+### 3. **ADU Opportunity Analyzer** (`/analyze/adu`)
+Find hidden value through Additional Dwelling Units - unique Canadian market advantage.
+
+- **Signal Detection Engine**:
+  - 70+ keywords scanned in listing descriptions
+  - Structural signals (walkout basement, detached garage, etc.)
+  - Zoning signals (ADU-friendly municipalities)
+  - Market timing (DOM, price drops)
+  - Lot characteristics (size for garden suite/laneway)
+- **Provincial ADU Database**: Regulations for ON, BC, AB, NS, QC
+- **Municipal Hotspots**: Toronto, Vancouver, Calgary, Edmonton, Hamilton, Ottawa, Niagara region
+- **Profit Calculator**:
+  - Cost breakdown by ADU type (basement, garden, garage, attic, laneway)
+  - Provincial cost multipliers
+  - DIY discount calculations
+- **Funding Stack Analyzer**:
+  - Canada Secondary Suite Loan ($80k @ 2%)
+  - Ontario Renovates Program ($25k forgivable)
+  - BC Secondary Suite Incentive ($40k)
+  - Municipal grants (Toronto Garden Suite $50k, Ottawa ADU $25k)
+- **ROI Metrics**: Cash-on-cash return, cap rate contribution, payback period
+- **Comparison Tool**: Compare all ADU types for any property
+- **Status**: ✅ **COMPLETE**
 
 ---
 
@@ -377,23 +432,39 @@ All core features plus production-grade engineering additions have been implemen
 
 ## 🏆 Summary
 
-REI OPS™ v2.0 is now a **production-grade platform** with:
+REI OPS™ v3.0 is now a **Canadian-focused real estate investment platform** with:
 
-✅ **15 major features** added beyond MVP
+✅ **3 unique differentiators** (ACRE, Mortgage Qualification, ADU Analyzer)
+✅ **Canadian market specialization** (CMHC, LTT, OSFI B-20, provincial regulations)
+✅ **20+ major features** beyond MVP
 ✅ **Professional engineering** practices
 ✅ **Complete CRUD operations**
 ✅ **Advanced filtering & sorting**
 ✅ **Export capabilities**
 ✅ **Analytics infrastructure**
+✅ **Comprehensive test coverage**
 ✅ **Code quality tools**
-✅ **SEO optimization**
-✅ **Accessibility features**
-✅ **Error resilience**
 
-**This is no longer just an MVP. This is a SaaS platform ready for paying customers.** 🚀
+**This is a specialized Canadian RE investment platform with features you won't find elsewhere.** 🚀
 
 ---
 
-**Last Updated**: 2024-11-19
-**Version**: 2.0.0
+## 🔗 Quick Links
+
+| Feature | URL |
+|---------|-----|
+| Dashboard | `/dashboard` |
+| New Analysis | `/analyze` |
+| ACRE Analyzer | `/analyze/acre` |
+| ADU Analyzer | `/analyze/adu` |
+| Mortgage Qualification | `/mortgage-qualification` |
+| All Deals | `/deals` |
+| Portfolio | `/portfolio` |
+| Compare Deals | `/compare` |
+| Settings | `/settings` |
+
+---
+
+**Last Updated**: 2024-12-10
+**Version**: 3.0.0
 **Status**: ✅ **PRODUCTION READY**
