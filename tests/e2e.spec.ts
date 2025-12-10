@@ -36,7 +36,7 @@ test('Complete User Flow: Signup -> Analyze -> Portfolio', async ({ page }) => {
     await page.fill('input[placeholder*="Enter MLS Number"]', 'X12531322');
 
     // Click Auto-Fill
-    await page.click('button:has-text("Auto-Fill")');
+    await page.getByRole('button', { name: 'Auto-Fill' }).click();
 
     // Wait for success toast
     await expect(page.getByText('Property details imported successfully')).toBeVisible({ timeout: 15000 });
@@ -59,7 +59,7 @@ test('Complete User Flow: Signup -> Analyze -> Portfolio', async ({ page }) => {
 
     // Click Analyze
     console.log('Submitting analysis...');
-    await page.click('button:has-text("Analyze Rental Property")');
+    await page.getByRole('button', { name: 'Analyze Rental Property' }).click();
 
     // Wait for success toast
     await expect(page.getByText('Deal analyzed and saved successfully!')).toBeVisible({ timeout: 10000 });

@@ -32,6 +32,7 @@ import { calculateDealScore } from './deal-scoring';
 import { MARKET_BENCHMARKS, CLOSING_COSTS } from '@/constants/market-data';
 import { analyzeMultiFamilyDevelopment } from './multifamily-analyzer';
 import { analyzeSmallMultifamily } from './small-multifamily-analyzer';
+import { calculateAcreFromDeal } from './acre-analyzer';
 
 /**
  * Main deal analysis function
@@ -117,6 +118,9 @@ export function analyzeRentalProperty(inputs: PropertyInputs): DealAnalysis {
 
   // Calculate deal score (needs full analysis)
   analysis.scoring = calculateDealScore(analysis);
+
+  // Calculate ACRE score for the deal
+  analysis.acre_score = calculateAcreFromDeal(analysis);
 
   return analysis;
 }

@@ -110,6 +110,12 @@ export default function DashboardPage() {
             <Link href="/portfolio">
               <Button variant="ghost" size="sm">Portfolio</Button>
             </Link>
+            <Link href="/mortgage-qualification">
+              <Button variant="ghost" size="sm">Qualify</Button>
+            </Link>
+            <Link href="/analyze/acre">
+              <Button variant="ghost" size="sm">ACRE</Button>
+            </Link>
             <Link href="/analyze">
               <Button size="sm">+ New</Button>
             </Link>
@@ -172,13 +178,39 @@ export default function DashboardPage() {
         {/* Quick Actions */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold mb-4">Quick Actions</h2>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             <Link href="/analyze">
               <Card className="cursor-pointer hover:border-primary transition-colors h-full">
                 <CardHeader>
-                  <CardTitle>Analyze New Deal</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    📊 Analyze New Deal
+                  </CardTitle>
                   <CardDescription>
                     Run a complete Canadian market analysis
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
+            <Link href="/mortgage-qualification">
+              <Card className="cursor-pointer hover:border-primary transition-colors h-full bg-gradient-to-br from-blue-50 to-indigo-50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    💰 Mortgage Qualification
+                  </CardTitle>
+                  <CardDescription>
+                    Check GDS/TDS ratios & max borrowing power
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
+            <Link href="/analyze/acre">
+              <Card className="cursor-pointer hover:border-primary transition-colors h-full bg-gradient-to-br from-purple-50 to-pink-50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    🎯 ACRE™ Analyzer
+                  </CardTitle>
+                  <CardDescription>
+                    Score properties using Don Campbell's system
                   </CardDescription>
                 </CardHeader>
               </Card>
@@ -186,7 +218,9 @@ export default function DashboardPage() {
             <Link href="/deals">
               <Card className="cursor-pointer hover:border-primary transition-colors h-full">
                 <CardHeader>
-                  <CardTitle>View All Deals</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    📋 View All Deals
+                  </CardTitle>
                   <CardDescription>
                     Browse and filter your saved deals
                   </CardDescription>
@@ -196,7 +230,9 @@ export default function DashboardPage() {
             <Link href="/compare">
               <Card className="cursor-pointer hover:border-primary transition-colors h-full">
                 <CardHeader>
-                  <CardTitle>Compare Deals</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    ⚖️ Compare Deals
+                  </CardTitle>
                   <CardDescription>
                     Side-by-side comparison of up to 3 deals
                   </CardDescription>
@@ -206,7 +242,9 @@ export default function DashboardPage() {
             <Link href="/portfolio">
               <Card className="cursor-pointer hover:border-primary transition-colors h-full">
                 <CardHeader>
-                  <CardTitle>Portfolio Analytics</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    📈 Portfolio Analytics
+                  </CardTitle>
                   <CardDescription>
                     Aggregate insights across all deals
                   </CardDescription>
@@ -216,7 +254,9 @@ export default function DashboardPage() {
             <Link href="/settings">
               <Card className="cursor-pointer hover:border-primary transition-colors h-full">
                 <CardHeader>
-                  <CardTitle>Settings</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    ⚙️ Settings
+                  </CardTitle>
                   <CardDescription>
                     Update your preferences and defaults
                   </CardDescription>

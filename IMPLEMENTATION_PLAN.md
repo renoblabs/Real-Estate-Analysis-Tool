@@ -104,7 +104,69 @@ Guide new users through their first property analysis with a multi-step wizard.
 
 ---
 
-## 🎯 Priority 3: Knowledge Enhancement (Weeks 5-6)
+## 🎯 Priority 3: ADU & Zoning Arbitrage Engine (Weeks 5-6)
+**Effort:** High | **Value:** Very High (Unique Selling Point) | **Est. Credits:** $20-30
+
+Build a system to identify properties with hidden value through Additional Dwelling Unit (ADU) conversion or zoning arbitrage.
+
+**Implementation:**
+- **Signal Detection Engine:**
+  - Scan listing descriptions for keywords: "separate entrance", "detached garage", "high ceilings", "in-law suite".
+  - Identify "Zoning Mismatch": Listed as single-family but in R2/R3 zone (requires zoning map overlay).
+  - Market Timing: Flag properties with DOM > 60 or recent price drops.
+- **ADU Profit Calculator:**
+  - **Gap Analysis Formula:** `(Post-Reno Value + Rental Income) - (Purchase + Reno + Carrying Costs)`
+  - **Funding Stack Calculator:** Auto-apply Canada Secondary Suite Loan ($80k @ 2%), municipal grants, and rebates.
+  - **Renovation Estimator:** Standard costs for Basement Suite ($40-60k) vs Garden Suite ($80-120k).
+- **Risk Adjustment Layer:**
+  - Penalize for: Septic (vs Sewer), Heritage designation, Flood zone.
+
+**Files to Create:**
+- `/lib/adu-analyzer.ts` - Core profit & gap analysis logic
+- `/lib/signal-detector.ts` - Keyword & zoning signal logic
+- `/components/adu/adu-potential-card.tsx` - Visual indicator of ADU potential
+- `/app/analyze/adu/page.tsx` - Dedicated ADU analysis view
+
+**Success Criteria:**
+- [ ] Detects "hidden" ADU potential in listings
+- [ ] Calculates ROI for adding a basement or garden suite
+- [ ] Auto-suggests applicable government grants/loans
+
+---
+
+## 🎯 Priority 4: Advanced Developer Tools (Weeks 7-8)
+**Effort:** Very High | **Value:** Extreme (Developer Niche) | **Est. Credits:** $30-40
+
+Transform the platform into a developer's operating system with advanced strategies.
+
+**Implementation:**
+- **"Dad's Rules" Engine (Local Knowledge Layer):**
+  - Codify local insights: "Avoid Stanley St (foundations)", "North End (sewer access)".
+  - Flag "Estate Sales" and "Corner Lots" (ADU parking bonus).
+- **DIY Renovation Calculator:**
+  - Calculate "Sweat Equity": `Contractor Cost - (Materials + Permits)`.
+  - Filters: Structural simplicity, electrical capacity, lot access.
+- **New Construction Multi-Family Analyzer:**
+  - Compare `Renovation ROI` vs `New Build 3-Plex ROI`.
+  - Purpose-built ADU modeling (Main + Upper + Garden).
+- **Lot Severance Engine:**
+  - Identify severance candidates: Frontage >= 100ft, Depth >= 150ft.
+  - Calculate: `(Lot A Value + Lot B Value) - (Acquisition + Severance Costs)`.
+
+**Files to Create:**
+- `/lib/strategies/diy-calculator.ts`
+- `/lib/strategies/new-construction.ts`
+- `/lib/strategies/severance.ts`
+- `/components/developer/strategy-comparison.tsx`
+
+**Success Criteria:**
+- [ ] Calculate "Sweat Equity" potential
+- [ ] Compare Reno vs New Build scenarios
+- [ ] Identify potential lot severance opportunities
+
+---
+
+## 🎯 Priority 5: Knowledge Enhancement (Weeks 9-10)
 
 ### 4. Knowledge Vault
 **Effort:** High | **Value:** High (long-term) | **Est. Credits:** $15-20
@@ -212,6 +274,15 @@ Prepare for enterprise clients with multi-tenant support.
 
 ### Week 7-8: Architecture (Optional)
 - ⚠️ Multi-Tenant (only if needed for enterprise sales)
+
+### Phase 4: Data Standardization (Future)
+- [ ] **RESO Data Dictionary Alignment**
+  - Refactor `PropertyInputs` and database schema to match [RESO Data Dictionary](https://www.reso.org/data-dictionary/) standards.
+  - Ensure field names (e.g., `LivingArea`, `ListPrice`, `StandardStatus`) align with Canadian CREA/DDF feeds.
+  - This prepares the platform for direct DDF integration.
+- [ ] **Advanced Data Feeds**
+  - Integrate direct CREA DDF feed (requires RESO alignment).
+  - Add historical market data tracking.
 
 ---
 

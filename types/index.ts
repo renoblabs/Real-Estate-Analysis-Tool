@@ -213,6 +213,25 @@ export interface DealFlags {
   fails_stress_test: boolean;
 }
 
+export interface AcreScoreResult {
+  totalScore: number;
+  grade: 'A+' | 'A' | 'B+' | 'B' | 'C' | 'D' | 'F';
+  recommendation: string;
+  breakdown: {
+    cashFlowScore: number;
+    locationScore: number;
+    appreciationScore: number;
+    riskScore: number;
+  };
+  details: {
+    rentToPriceRatio: number;
+    cashFlowCategory: string;
+    locationRationale: string;
+    appreciationRationale: string;
+    riskRationale: string;
+  };
+}
+
 export interface DealAnalysis {
   property: PropertyInputs;
   acquisition: AcquisitionCosts;
@@ -226,6 +245,7 @@ export interface DealAnalysis {
   scoring: DealScoring;
   warnings: string[];
   flags: DealFlags;
+  acre_score?: AcreScoreResult;
 }
 
 export interface UserPreferences {

@@ -2,6 +2,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { TrendingUp, AlertTriangle, CheckCircle2, Target } from 'lucide-react';
 import type { DealAnalysis } from '@/types';
 
 interface AnalysisResultsCardProps {
@@ -10,12 +11,26 @@ interface AnalysisResultsCardProps {
 
 function getGradeColor(grade: string) {
   switch (grade) {
+    case 'A+':
     case 'A': return 'bg-green-500';
+    case 'B+':
     case 'B': return 'bg-blue-500';
     case 'C': return 'bg-yellow-500';
     case 'D': return 'bg-orange-500';
     case 'F': return 'bg-red-500';
     default: return 'bg-gray-500';
+  }
+}
+
+function getAcreRecommendationStyle(recommendation: string) {
+  if (recommendation.startsWith('STRONG BUY')) {
+    return { bg: 'bg-green-50 border-green-200', text: 'text-green-700', icon: CheckCircle2 };
+  } else if (recommendation.startsWith('CONSIDER')) {
+    return { bg: 'bg-blue-50 border-blue-200', text: 'text-blue-700', icon: TrendingUp };
+  } else if (recommendation.startsWith('CAUTION')) {
+    return { bg: 'bg-yellow-50 border-yellow-200', text: 'text-yellow-700', icon: AlertTriangle };
+  } else {
+    return { bg: 'bg-red-50 border-red-200', text: 'text-red-700', icon: AlertTriangle };
   }
 }
 
@@ -36,11 +51,11 @@ export function AnalysisResultsCard({ analysis }: AnalysisResultsCardProps) {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid md:grid-cols-3 gap-6 mb-6">
+        <div className="grid md:grid-cols-4 gap-4 mb-6">
           <div className="p-4 border rounded">
             <h3 className="text-sm font-medium text-muted-foreground">Monthly Cash Flow</h3>
-            <p className="text-2xl font-bold mt-2">
-              ${analysis.cash_flow.monthly_net.toFixed(2)}
+            <p className={`text-2xl font-bold mt-2 ${analysis.cash_flow.monthly_cash_flow < 0 ? 'text-red-600' : 'text-green-600'}`}>
+              ${analysis.cash_flow.monthly_cash_flow.toFixed(2)}
             </p>
           </div>
           <div className="p-4 border rounded">
@@ -55,7 +70,59 @@ export function AnalysisResultsCard({ analysis }: AnalysisResultsCardProps) {
               {analysis.metrics.cap_rate.toFixed(1)}%
             </p>
           </div>
+          {analysis.acre_score && (
+            <div className="p-4 border rounded bg-gradient-to-br from-purple-50 to-indigo-50">
+              <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-1">
+                <Target className="h-4 w-4" /> ACRE™ Score
+              </h3>
+              <div className="flex items-baseline gap-2 mt-2">
+                <p className="text-2xl font-bold">{analysis.acre_score.totalScore}</p>
+                <Badge className={getGradeColor(analysis.acre_score.grade)}>
+                  {analysis.acre_score.grade}
+                </Badge>
+              </div>
+            </div>
+          )}
         </div>
+
+        {/* ACRE Score Details */}
+        {analysis.acre_score && (
+          <div className={`p-4 rounded-lg border mb-6 ${getAcreRecommendationStyle(analysis.acre_score.recommendation).bg}`}>
+            <div className="flex items-start gap-3">
+              {(() => {
+                const style = getAcreRecommendationStyle(analysis.acre_score.recommendation);
+                const Icon = style.icon;
+                return <Icon className={`h-5 w-5 mt-0.5 ${style.text}`} />;
+              })()}
+              <div className="flex-1">
+                <h4 className={`font-semibold ${getAcreRecommendationStyle(analysis.acre_score.recommendation).text}`}>
+                  {analysis.acre_score.recommendation.split(' - ')[0]}
+                </h4>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {analysis.acre_score.recommendation.split(' - ')[1]}
+                </p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Cash Flow:</span>
+                    <span className="font-medium ml-1">{analysis.acre_score.breakdown.cashFlowScore}/40</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Location:</span>
+                    <span className="font-medium ml-1">{analysis.acre_score.breakdown.locationScore}/30</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Appreciation:</span>
+                    <span className="font-medium ml-1">{analysis.acre_score.breakdown.appreciationScore}/20</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Risk:</span>
+                    <span className="font-medium ml-1">{analysis.acre_score.breakdown.riskScore}/10</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="space-y-4">
           <div>
