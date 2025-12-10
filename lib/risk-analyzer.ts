@@ -94,11 +94,11 @@ function assessFinancialRisks(
   const risks: RiskFactor[] = [];
 
   // Cash Flow Risk
-  const cashFlowMargin = Math.abs(analysis.cash_flow.monthly_net);
+  const cashFlowMargin = Math.abs(analysis.cash_flow.monthly_cash_flow);
   const revenuePercent = (cashFlowMargin / analysis.revenue.gross_monthly_rent) * 100;
   let cashFlowRiskScore = 0;
 
-  if (analysis.cash_flow.monthly_net < 0) {
+  if (analysis.cash_flow.monthly_cash_flow < 0) {
     cashFlowRiskScore = 80 + Math.min(revenuePercent, 20);
   } else if (revenuePercent < 10) {
     cashFlowRiskScore = 60;
@@ -111,8 +111,8 @@ function assessFinancialRisks(
   risks.push({
     ...assessRisk(
       cashFlowRiskScore,
-      analysis.cash_flow.monthly_net < 0
-        ? `Negative cash flow of ${Math.abs(analysis.cash_flow.monthly_net).toFixed(0)}/month`
+      analysis.cash_flow.monthly_cash_flow < 0
+        ? `Negative cash flow of ${Math.abs(analysis.cash_flow.monthly_cash_flow).toFixed(0)}/month`
         : `Cash flow margin of ${revenuePercent.toFixed(1)}% is ${revenuePercent < 15 ? 'tight' : 'healthy'}`,
       'A tight cash flow margin means small increases in expenses or vacancy could turn the deal negative',
       [

@@ -207,7 +207,7 @@ export class DealSourcingEngine {
     const recommendations: string[] = [];
 
     // 1. Cash Flow Analysis (25 points)
-    const monthlyCashFlow = analysis.cash_flow.monthly_net;
+    const monthlyCashFlow = analysis.cash_flow.monthly_cash_flow;
     if (monthlyCashFlow >= criteria.minCashFlow) {
       const cashFlowScore = Math.min(25, (monthlyCashFlow / criteria.minCashFlow) * 15);
       scores.push(cashFlowScore);
@@ -370,7 +370,7 @@ export class DealSourcingEngine {
     }
 
     // Debt service coverage
-    const annualCashFlow = analysis.cash_flow.monthly_net * 12;
+    const annualCashFlow = analysis.cash_flow.monthly_cash_flow * 12;
     const annualDebtService = analysis.financing.monthly_payment * 12;
     const dscr = (annualCashFlow + annualDebtService) / annualDebtService;
 
@@ -469,7 +469,7 @@ export class DealSourcingEngine {
     if (ltv > 80) riskFactors++;
     
     // Negative cash flow
-    if (analysis.cash_flow.monthly_net < 0) riskFactors += 2;
+    if (analysis.cash_flow.monthly_cash_flow < 0) riskFactors += 2;
     
     // High interest rates
     if (inputs?.interest_rate && inputs.interest_rate > 6.5) riskFactors++;

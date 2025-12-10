@@ -108,7 +108,7 @@ function calculateOccupancyBreakEven(
   } else {
     // Currently positive, calculate max we could afford
     max_affordable_vacancy_percent = Math.min(100,
-      ((analysis.revenue.gross_monthly_rent * (inputs.vacancy_rate || 5) / 100) + analysis.cash_flow.monthly_net) /
+      ((analysis.revenue.gross_monthly_rent * (inputs.vacancy_rate || 5) / 100) + analysis.cash_flow.monthly_cash_flow) /
       analysis.revenue.gross_monthly_rent * 100
     );
   }
@@ -159,7 +159,7 @@ function calculateInterestRateSensitivity(
     max_affordable_interest_rate = Math.max(0, inputs.interest_rate - rate_reduction_needed);
   } else {
     // Calculate how much higher rate we could afford
-    const rate_cushion = (analysis.cash_flow.monthly_net / analysis.financing.total_mortgage_with_insurance) * 12 * 100;
+    const rate_cushion = (analysis.cash_flow.monthly_cash_flow / analysis.financing.total_mortgage_with_insurance) * 12 * 100;
     max_affordable_interest_rate = inputs.interest_rate + rate_cushion;
   }
 
@@ -185,11 +185,11 @@ function calculateTimelineToPositive(
 
   if (!is_currently_cash_flow_positive) {
     let projected_rent = current_monthly_rent;
-    let annual_loss = analysis.cash_flow.annual_net;
+    let annual_loss = analysis.cash_flow.annual_cash_flow;
 
     for (let year = 1; year <= 30; year++) {
       projected_rent *= (1 + rent_growth_rate);
-      const projected_monthly_cf = analysis.cash_flow.monthly_net + (projected_rent - current_monthly_rent);
+      const projected_monthly_cf = analysis.cash_flow.monthly_cash_flow + (projected_rent - current_monthly_rent);
 
       if (projected_monthly_cf >= 0) {
         years_to_positive_cf = year;
@@ -280,11 +280,11 @@ function determineQuickestPath(
  * Calculate comprehensive break-even analysis (Main orchestrator)
  */
 export function calculateBreakEven(analysis: DealAnalysis, inputs: PropertyInputs): BreakEvenAnalysis {
-  const monthly_shortfall = analysis.cash_flow.monthly_net < 0
-    ? Math.abs(analysis.cash_flow.monthly_net)
+  const monthly_shortfall = analysis.cash_flow.monthly_cash_flow < 0
+    ? Math.abs(analysis.cash_flow.monthly_cash_flow)
     : 0;
 
-  const is_currently_cash_flow_positive = analysis.cash_flow.monthly_net >= 0;
+  const is_currently_cash_flow_positive = analysis.cash_flow.monthly_cash_flow >= 0;
   const current_monthly_rent = analysis.revenue.gross_monthly_rent;
 
   // Calculate all break-even scenarios

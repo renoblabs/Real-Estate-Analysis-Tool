@@ -112,9 +112,9 @@ export function analyzeAirbnb(
 
   // Comparison to Long-Term Rental
   const long_term_analysis = baseAnalysis;
-  const str_vs_ltr_cash_flow_difference = net_cash_flow - long_term_analysis.cash_flow.annual_net;
+  const str_vs_ltr_cash_flow_difference = net_cash_flow - long_term_analysis.cash_flow.annual_cash_flow;
   const str_vs_ltr_percentage_increase =
-    (str_vs_ltr_cash_flow_difference / Math.abs(long_term_analysis.cash_flow.annual_net)) * 100;
+    (str_vs_ltr_cash_flow_difference / Math.abs(long_term_analysis.cash_flow.annual_cash_flow)) * 100;
 
   // Break-even occupancy (to match LTR cash flow)
   const ltr_net_revenue = long_term_analysis.revenue.annual_gross_income -

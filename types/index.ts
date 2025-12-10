@@ -161,9 +161,9 @@ export interface Expenses {
 }
 
 export interface CashFlow {
-  monthly_net: number;
-  annual_net: number;
-  monthly_before_debt: number;
+  monthly_cash_flow: number;
+  annual_cash_flow: number;
+  monthly_noi: number;
   annual_noi: number;
 }
 

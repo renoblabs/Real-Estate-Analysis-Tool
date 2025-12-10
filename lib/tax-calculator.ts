@@ -235,7 +235,7 @@ export function calculateTaxImpact(
   const rental_income_tax = net_rental_income > 0 ? net_rental_income * (marginal_tax_rate / 100) : 0;
 
   // After-tax cash flow (actual cash flow - rental income tax)
-  const after_tax_cash_flow = analysis.cash_flow.annual_net - rental_income_tax;
+  const after_tax_cash_flow = analysis.cash_flow.annual_cash_flow - rental_income_tax;
 
   // Capital Gains Tax Calculation
   const purchase_price = analysis.acquisition.purchase_price;

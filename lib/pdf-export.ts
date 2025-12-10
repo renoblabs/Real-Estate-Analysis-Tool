@@ -86,8 +86,8 @@ export function generateDealPDF(analysis: DealAnalysis): void {
 
   // Key Metrics
   addSection('Key Metrics');
-  addText('Monthly Cash Flow', formatCurrency(analysis.cash_flow.monthly_net), true);
-  addText('Annual Cash Flow', formatCurrency(analysis.cash_flow.annual_net));
+  addText('Monthly Cash Flow', formatCurrency(analysis.cash_flow.monthly_cash_flow), true);
+  addText('Annual Cash Flow', formatCurrency(analysis.cash_flow.annual_cash_flow));
   addText('Cash-on-Cash Return', `${analysis.metrics.cash_on_cash_return.toFixed(2)}%`, true);
   addText('Cap Rate', `${analysis.metrics.cap_rate.toFixed(2)}%`, true);
   addText('DSCR', analysis.metrics.dscr.toFixed(2));
