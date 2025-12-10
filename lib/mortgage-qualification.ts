@@ -169,7 +169,7 @@ export function calculateMaxBorrowingPower(input: MaxBorrowingInput): MaxBorrowi
     let maxTds = 44;
     let lenderType: 'A-Lender' | 'B-Lender' | 'Private' = 'A-Lender';
 
-    if (creditScore < 680 || creditScore >= 600) {
+    if (creditScore < 680 && creditScore >= 600) {
         maxGds = 42;
         maxTds = 50;
         lenderType = 'B-Lender';

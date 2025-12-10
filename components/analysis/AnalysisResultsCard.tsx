@@ -1,9 +1,11 @@
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { TrendingUp, AlertTriangle, CheckCircle2, Target } from 'lucide-react';
+import { TrendingUp, AlertTriangle, CheckCircle2, Target, Home, ArrowRight } from 'lucide-react';
 import type { DealAnalysis } from '@/types';
+import { quickAduCheck } from '@/lib/adu-signal-detector';
 
 interface AnalysisResultsCardProps {
   analysis: DealAnalysis;
@@ -36,6 +38,36 @@ function getAcreRecommendationStyle(recommendation: string) {
 
 export function AnalysisResultsCard({ analysis }: AnalysisResultsCardProps) {
   const router = useRouter();
+  
+  // Check for ADU potential
+  const aduCheck = quickAduCheck({
+    address: analysis.property.address,
+    city: analysis.property.city,
+    province: analysis.property.province,
+    property_type: analysis.property.property_type,
+    bedrooms: analysis.property.bedrooms,
+    bathrooms: analysis.property.bathrooms,
+    square_feet: analysis.property.square_feet,
+    purchase_price: analysis.property.purchase_price,
+    down_payment_percent: 20,
+    down_payment_amount: analysis.property.purchase_price * 0.2,
+    interest_rate: 5.5,
+    amortization_years: 25,
+    strategy: 'buy_hold',
+    property_condition: 'move_in_ready',
+    renovation_cost: 0,
+    monthly_rent: analysis.revenue.monthly_rent,
+    other_income: 0,
+    vacancy_rate: 5,
+    property_tax_annual: analysis.expenses.property_tax,
+    insurance_annual: analysis.expenses.insurance,
+    property_management_percent: 8,
+    maintenance_percent: 10,
+    utilities_monthly: 0,
+    hoa_condo_fees_monthly: 0,
+    other_expenses_monthly: 0,
+    lot_size: analysis.property.lot_size
+  });
 
   return (
     <Card className="border-2 border-primary">
@@ -119,6 +151,28 @@ export function AnalysisResultsCard({ analysis }: AnalysisResultsCardProps) {
                     <span className="font-medium ml-1">{analysis.acre_score.breakdown.riskScore}/10</span>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ADU Potential Indicator */}
+        {aduCheck.hasHighPotential && (
+          <div className="p-4 rounded-lg border mb-6 bg-gradient-to-r from-orange-50 to-amber-50 border-orange-200">
+            <div className="flex items-start gap-3">
+              <Home className="h-5 w-5 mt-0.5 text-orange-600" />
+              <div className="flex-1">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-semibold text-orange-700">ADU Opportunity Detected</h4>
+                  <Link href="/analyze/adu">
+                    <Button variant="outline" size="sm" className="text-orange-600 border-orange-300 hover:bg-orange-100">
+                      Analyze ADU <ArrowRight className="h-4 w-4 ml-1" />
+                    </Button>
+                  </Link>
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {aduCheck.summary}
+                </p>
               </div>
             </div>
           </div>
