@@ -116,6 +116,9 @@ export default function DashboardPage() {
             <Link href="/analyze/acre">
               <Button variant="ghost" size="sm">ACRE</Button>
             </Link>
+            <Link href="/analyze/adu">
+              <Button variant="ghost" size="sm">ADU</Button>
+            </Link>
             <Link href="/analyze">
               <Button size="sm">+ New</Button>
             </Link>
@@ -247,6 +250,18 @@ export default function DashboardPage() {
                   </CardTitle>
                   <CardDescription>
                     Aggregate insights across all deals
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
+            <Link href="/analyze/adu">
+              <Card className="cursor-pointer hover:border-primary transition-colors h-full bg-gradient-to-br from-orange-50 to-amber-50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    🏠 ADU Analyzer
+                  </CardTitle>
+                  <CardDescription>
+                    Find hidden value with secondary suites
                   </CardDescription>
                 </CardHeader>
               </Card>
